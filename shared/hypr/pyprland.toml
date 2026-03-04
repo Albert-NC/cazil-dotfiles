@@ -1,0 +1,16 @@
+[pyprland]
+plugins = ["scratchpads"]
+
+[scratchpads.term]
+animation = "fromTop"
+command = "kitty --class scratchpad_term"
+class = "scratchpad_term"
+size = "70% 60%"
+max_size = "1920 1080"
+
+[scratchpads.calc]
+animation = "fromBottom"
+command = "kitty --class scratchpad_calc -e python3"
+class = "scratchpad_calc"
+size = "40% 30%"
+position = "center"

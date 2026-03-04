@@ -1,0 +1,135 @@
+# ============================================================
+# CAZIL CYBERPUNK — Plymouth Boot Theme
+# Animación de fondo: 54 frames JPG en loop continuo
+# ============================================================
+
+screen_width  = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+# ─── PRECARGAR TODOS LOS FRAMES ──────────────────────────────
+# Los frames se llaman: 17a72ad83c174958c962a081f762259bpXPCisIFOfQBCiwa-0.jpg … -53.jpg
+frame_prefix = "17a72ad83c174958c962a081f762259bpXPCisIFOfQBCiwa-";
+total_frames  = 54;
+
+for (i = 0; i < total_frames; i++) {
+    frame[i] = Image(frame_prefix + i + ".jpg");
+}
+
+# Sprite donde se mostrará cada frame
+bg_sprite = Sprite();
+bg_sprite.SetX(0);
+bg_sprite.SetY(0);
+bg_sprite.SetZ(-100);
+
+# ─── TEXTO CAZIL CENTRADO ────────────────────────────────────
+logo_img    = Image.Text("CAZIL", 0.0, 0.85, 1.0, 1);
+logo_sprite = Sprite(logo_img);
+logo_sprite.SetX(screen_width  / 2 - logo_img.GetWidth()  / 2);
+logo_sprite.SetY(screen_height / 2 - logo_img.GetHeight() / 2 - 40);
+logo_sprite.SetZ(1);
+
+# ─── BARRA DE PROGRESO ───────────────────────────────────────
+bar_height = 4;
+bar_y      = screen_height * 0.72;
+bar_max_w  = screen_width  * 0.40;
+bar_x      = screen_width  / 2 - bar_max_w / 2;
+
+# Fondo de la barra (gris tenue)
+bar_bg_img    = Image(Math.Int(bar_max_w), bar_height);
+bar_bg_img.Fill(0.15, 0.15, 0.20, 1.0);
+bar_bg_sprite = Sprite(bar_bg_img);
+bar_bg_sprite.SetX(bar_x);
+bar_bg_sprite.SetY(bar_y);
+bar_bg_sprite.SetZ(2);
+
+# Barra activa (cyan)
+bar_fill_sprite = Sprite();
+bar_fill_sprite.SetX(bar_x);
+bar_fill_sprite.SetY(bar_y);
+bar_fill_sprite.SetZ(3);
+
+# ─── PUNTOS ANIMADOS ─────────────────────────────────────────
+pulse_sprite = Sprite();
+pulse_sprite.SetZ(5);
+
+# ─── TEXTO DE ESTADO (mensajes del sistema / LUKS) ───────────
+status_sprite = Sprite();
+status_sprite.SetZ(6);
+
+# ─── CONTROL DE ANIMACIÓN ────────────────────────────────────
+current_frame = 0;
+tick          = 0;
+speed         = 2;     # Cambia frame cada N refrescos (~60Hz → ~30fps)
+pulse_angle   = 0;
+
+# ─── REFRESH CALLBACK ────────────────────────────────────────
+fun refresh_callback() {
+    # Avanzar frame con la cadencia definida por speed
+    tick = tick + 1;
+    if (tick >= speed) {
+        tick = 0;
+        current_frame = (current_frame + 1) % total_frames;
+
+        # Escalar frame al tamaño de pantalla y mostrarlo
+        if (frame[current_frame]) {
+            scaled = frame[current_frame].Scale(screen_width, screen_height);
+            bg_sprite.SetImage(scaled);
+        }
+    }
+
+    # Pulso de los tres puntos
+    pulse_angle = (pulse_angle + 4) % 360;
+    alpha = 0.35 + 0.65 * Math.Sin(pulse_angle * 3.14159 / 180);
+    dots_img = Image.Text("● ● ●", 0.0, alpha, alpha, 1);
+    pulse_sprite.SetImage(dots_img);
+    pulse_sprite.SetX(screen_width  / 2 - dots_img.GetWidth()  / 2);
+    pulse_sprite.SetY(screen_height / 2 + 20);
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ─── PROGRESO DE BOOT ────────────────────────────────────────
+fun progress_callback(duration, progress) {
+    fill_w = Math.Int(bar_max_w * progress);
+    if (fill_w < 1) { fill_w = 1; }
+    bar_fill_img = Image(fill_w, bar_height);
+    bar_fill_img.Fill(0.0, 0.85, 1.0, 1.0);   # Cyan
+    bar_fill_sprite.SetImage(bar_fill_img);
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# ─── CONTRASEÑA LUKS ─────────────────────────────────────────
+fun display_password_callback(prompt, bullets) {
+    bullet_str = "";
+    for (i = 0; i < bullets; i++) { bullet_str += "█"; }
+
+    prompt_img  = Image.Text("🔑 " + prompt, 1.0, 0.30, 0.65, 1);
+    bullets_img = Image.Text(bullet_str,      0.0, 0.85, 1.0,  1);
+
+    status_sprite.SetImage(prompt_img);
+    status_sprite.SetX(screen_width / 2 - prompt_img.GetWidth() / 2);
+    status_sprite.SetY(screen_height * 0.80);
+
+    pulse_sprite.SetImage(bullets_img);
+    pulse_sprite.SetX(screen_width / 2 - bullets_img.GetWidth() / 2);
+    pulse_sprite.SetY(screen_height * 0.85);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+# ─── MENSAJES DEL SISTEMA ────────────────────────────────────
+fun message_callback(text) {
+    msg_img = Image.Text(text, 0.7, 0.7, 0.7, 1);
+    status_sprite.SetImage(msg_img);
+    status_sprite.SetX(screen_width / 2 - msg_img.GetWidth() / 2);
+    status_sprite.SetY(screen_height * 0.88);
+}
+
+Plymouth.SetMessageFunction(message_callback);
+
+fun display_normal_callback() {
+    status_sprite.SetImage(Image.Text("", 0, 0, 0, 0));
+}
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);

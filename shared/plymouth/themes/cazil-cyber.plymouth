@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=CAZIL Cyberpunk
+Description=Animated cyberpunk boot splash — 54 frame loop
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/cazil-cyber/fondo
+ScriptFile=/usr/share/plymouth/themes/cazil-cyber/cazil-cyber.script

@@ -1,0 +1,112 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 3,
+    "fixed-center": true,
+    "exclusive": false,
+    "modules-left": [
+        "hyprland/workspaces#pacman",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "custom/ssh",
+        "clock",
+        "mpris"
+    ],
+    "modules-right": [
+        "custom/airplane-mode",
+        "battery#ilidary",
+        "network",
+        "bluetooth",
+        "pulseaudio",
+        "pulseaudio#microphone",
+        "tray"
+    ],
+    "hyprland/workspaces#pacman": {
+        "format": " {icon} ",
+        "all-outputs": true,
+        "format-icons": {
+            "1": "󰮇",
+            "2": "󰮆",
+            "3": "󰮅",
+            "4": "󰮄",
+            "5": "󰮃",
+            "default": "󰊠",
+            "active": "󰊯"
+        },
+        "tooltip": true
+    },
+    "custom/airplane-mode": {
+        "exec": "modo_avion",
+        "return-type": "json",
+        "format": "{}",
+        "tail": true
+    },
+    "clock": {
+        "format": "󰥔 {:%H:%M}  󰃮 {:%d/%m}",
+        "tooltip-format": "<big>{:%Y-%m-%d}</big>\n{calendar}"
+    },
+    "network": {
+        "format-wifi": "󰖩 {essid}",
+        "format-ethernet": "󰈀 Wired",
+        "format-disconnected": "󰖪 Offline",
+        "tooltip-format": "IP: {ipaddr}\nGw: {gwaddr}",
+        "tooltip-format-wifi": "󰖩 {essid} ({signaldBm}dBm)\nIP: {ipaddr}\nGate: {gwaddr}",
+        "tooltip-format-disconnected": "Desconectado"
+    },
+    "mpris": {
+        "format": " {player_icon} {artist} - {title}",
+        "format-paused": " {status_icon} <i>{artist} - {title}</i>",
+        "player-icons": {
+            "default": "󰎆",
+            "spotify": "",
+            "vlc": "󰕼"
+        },
+        "status-icons": {
+            "paused": "󰏤"
+        },
+        "max-length": 35
+    },
+    "custom/ssh": {
+        "exec": "ssh-monitor",
+        "return-type": "json",
+        "interval": 5,
+        "format": "{}",
+        "tooltip": true
+    },
+    "bluetooth": {
+        "format": "󰂯 {num_devices}",
+        "format-disabled": "󰂲",
+        "format-connected": "󰂱 {num_devices}",
+        "interval": 5
+    },
+    "pulseaudio": {
+        "format": "󰕾 {volume}%",
+        "format-muted": "󰖁 Muted"
+    },
+    "pulseaudio#microphone": {
+        "format": "󰍬 {volume}%",
+        "format-source-muted": "󰍭 Muted"
+    },
+    "battery#ilidary": {
+        "states": {
+            "warning": 25,
+            "critical": 10
+        },
+        "format": "{icon} {capacity}% ({time})",
+        "format-charging": "󰂄 {capacity}%",
+        "format-full": "󰁹 Full",
+        "format-icons": [
+            "󰁺",
+            "󰁼",
+            "󰁾",
+            "󰂀",
+            "󰂂"
+        ]
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10
+    }
+}

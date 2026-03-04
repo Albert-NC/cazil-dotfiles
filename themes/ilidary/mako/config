@@ -1,0 +1,86 @@
+# ==============================================================================
+# ILIDARY SYSTEM - CONFIGURACIÓN DE MAKO (NOTIFICACIONES)
+# Estilo: Minimalista — Verde esmeralda sobre fondo oscuro
+# ==============================================================================
+
+# --------------------------------------------------------------------------
+# ASPECTO GENERAL
+# --------------------------------------------------------------------------
+font=JetBrainsMono Nerd Font 11
+background-color=#0a1a0fee
+text-color=#e0f0e0
+border-color=#00c896
+border-size=2
+border-radius=6
+padding=14
+margin=10
+
+# --------------------------------------------------------------------------
+# POSICIÓN Y DIMENSIONES
+# --------------------------------------------------------------------------
+width=340
+height=140
+anchor=top-right
+default-timeout=5000
+
+# --------------------------------------------------------------------------
+# ICONOS
+# --------------------------------------------------------------------------
+icon-path=/usr/share/icons/Papirus-Dark
+max-icon-size=48
+
+# --------------------------------------------------------------------------
+# ESTILOS POR URGENCIA
+# --------------------------------------------------------------------------
+
+[urgency=normal]
+background-color=#0f2a1aee
+text-color=#d0eedd
+border-color=#00c896
+
+[urgency=critical]
+background-color=#0a1f0fee
+text-color=#ffffff
+border-color=#00ff88
+default-timeout=0
+
+[urgency=low]
+background-color=#0a1a0fee
+text-color=#7aaa8a
+border-color=#1a4a2a
+default-timeout=3000
+
+# --------------------------------------------------------------------------
+# AGRUPACIÓN E INTERACCIÓN
+# --------------------------------------------------------------------------
+group-by=app-name
+max-visible=3
+on-button-left=dismiss
+on-button-middle=none
+on-button-right=dismiss-all
+on-touch=dismiss
+
+# --------------------------------------------------------------------------
+# EFECTOS
+# --------------------------------------------------------------------------
+layer=overlay
+markup=1
+actions=1
+history=1
+max-history=20
+
+# --------------------------------------------------------------------------
+# APLICACIONES ESPECÍFICAS
+# --------------------------------------------------------------------------
+
+[app-name="battery"]
+background-color=#1a0a0aee
+border-color=#ff4444
+text-color=#ff8888
+default-timeout=0
+
+[app-name="volume"]
+background-color=#0a1a10ee
+border-color=#00c896
+text-color=#88ddbb
+default-timeout=2000

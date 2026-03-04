@@ -1,0 +1,101 @@
+# ==============================================================================
+# CAZIL SYSTEM - CONFIGURACIÓN DE MAKO (NOTIFICACIONES)
+# Estilo: Cyberpunk con colores cyan y rosa fluorescente
+# ==============================================================================
+
+# --------------------------------------------------------------------------
+# ASPECTO GENERAL
+# --------------------------------------------------------------------------
+font=JetBrainsMono Nerd Font 11
+background-color=#0d0d14ee
+text-color=#ffffff
+border-color=#ff4da6
+border-size=2
+border-radius=8
+padding=15
+margin=10
+
+# --------------------------------------------------------------------------
+# POSICIÓN Y DIMENSIONES
+# --------------------------------------------------------------------------
+width=350
+height=150
+anchor=top-right
+default-timeout=5000
+
+# --------------------------------------------------------------------------
+# ICONOS
+# --------------------------------------------------------------------------
+icon-path=/usr/share/icons/Papirus-Dark
+max-icon-size=48
+
+# --------------------------------------------------------------------------
+# ESTILOS POR URGENCIA
+# --------------------------------------------------------------------------
+
+# Notificaciones normales (cyan)
+[urgency=normal]
+background-color=#1a1b2eee
+text-color=#ffffff
+border-color=#00d9ff
+
+# Notificaciones críticas (rosa intenso)
+[urgency=critical]
+background-color=#2d1f3dee
+text-color=#ffffff
+border-color=#ff4da6
+default-timeout=0
+
+# Notificaciones bajas (gris suave)
+[urgency=low]
+background-color=#0d0d14ee
+text-color=#a0a0b0
+border-color=#2d1f3d
+default-timeout=3000
+
+# --------------------------------------------------------------------------
+# AGRUPACIÓN
+# --------------------------------------------------------------------------
+group-by=app-name
+max-visible=3
+
+# --------------------------------------------------------------------------
+# INTERACCIÓN
+# --------------------------------------------------------------------------
+on-button-left=dismiss
+on-button-middle=none
+on-button-right=dismiss-all
+on-touch=dismiss
+
+# --------------------------------------------------------------------------
+# EFECTOS
+# --------------------------------------------------------------------------
+layer=overlay
+markup=1
+actions=1
+history=1
+max-history=20
+
+# --------------------------------------------------------------------------
+# APLICACIONES ESPECÍFICAS
+# --------------------------------------------------------------------------
+
+# Batería crítica (rojo brillante)
+[app-name="battery"]
+background-color=#1a0a0aee
+border-color=#ff0050
+text-color=#ff4da6
+default-timeout=0
+
+# Volumen/Audio (cyan)
+[app-name="volume" app-name="audio"]
+background-color=#0a1a1aee
+border-color=#00d9ff
+text-color=#89dceb
+default-timeout=2000
+
+# Network/WiFi (cyan suave)
+[app-name="network" app-name="NetworkManager"]
+background-color=#0a1a1aee
+border-color=#00d9ff
+text-color=#74c7ec

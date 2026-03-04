@@ -1,0 +1,80 @@
+{
+    // --------------------------------------------------------------------------
+    // CONFIGURACIÓN DE LOGO
+    // --------------------------------------------------------------------------
+    "logo": {
+        // La ruta asume que el script creó el symlink a ~/.cache/fastfetch/assets
+        "source": "~/.cache/fastfetch/assets/cazil_logo_transparente.png",
+        "type": "kitty-direct", // Protocolo más rápido para terminal Kitty
+        "padding": {
+            "top": 1,
+            "left": 6
+        },
+        "width": 25,
+        "height": 12
+    },
+    
+    // Configuración de la Pantalla
+    "display": {
+        "separator": " -> "
+    },
+    
+    // MÓDULOS (La Información)
+    // --------------------------------------------------------------------------
+    "modules": [
+        "break",
+        {
+            "type": "title",
+            "keyWidth": 14,
+            "format": "    󰮯 󰊠 {6}{7}{8}"
+        },
+        {
+            "type": "custom",
+            "format": "  ╭───────────────────────╮"
+        },
+        {
+         
+    "type": "custom",
+    "format": "Cz --->> 24.04",
+
+            "key": " ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "wm",
+            "key": " ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "shell",
+            "key": " ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "terminal",
+            "key": " ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "memory",
+            "key": "󰍛 ",
+            "keyColor": "magenta",
+            "format": "{1} / {2}"
+        },
+        {
+            "type": "uptime",
+            "key": "󰔛 ",
+            "keyColor": "green"
+        },
+        {
+            "type": "custom",
+            "format": "  ╰───────────────────────╯"
+        },
+        {
+            // Barra de colores al final (Efecto visual ANSI)
+            "type": "custom",
+            "format": "  \u001b[31m  \u001b[32m  \u001b[33m  \u001b[34m  \u001b[35m  \u001b[36m  \u001b[37m  \u001b[90m "
+        },
+        "break"
+    ]
+}

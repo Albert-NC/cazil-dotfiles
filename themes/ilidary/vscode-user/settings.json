@@ -1,0 +1,12 @@
+{
+    "workbench.colorTheme": "Default Dark Modern",
+    "editor.fontFamily": "'CaskaydiaCove Nerd Font', monospace",
+    "editor.fontSize": 14,
+    "editor.minimap.enabled": false,
+    "workbench.startupEditor": "none",
+    "editor.scrollbar.vertical": "hidden",
+    "editor.renderLineHighlight": "none",
+    "window.menuBarVisibility": "toggle",
+    "workbench.activityBar.location": "hidden",
+    "editor.lineNumbers": "on"
+}

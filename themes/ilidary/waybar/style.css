@@ -1,0 +1,112 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+/* ----------------------------------------------------- */
+/* ILIDARY — ILLIDAN FEL GREEN / ABYSSAL PURPLE          */
+/* "You are not prepared."                               */
+/* ----------------------------------------------------- */
+window#waybar {
+    background: rgba(6, 11, 15, 0.97);
+    /* Negro abismal profundo */
+    color: #c9d1d9;
+    border-bottom: 2px solid #00ff87;
+    /* Borde Fel verde */
+    margin-top: -28px;
+    /* Ocultar barra */
+    transition: margin-top 0.2s ease-in-out;
+}
+
+window#waybar:hover {
+    margin-top: 0px;
+    /* Mostrar barra */
+}
+
+/* ----------------------------------------------------- */
+/* WORKSPACES                                             */
+/* ----------------------------------------------------- */
+#workspaces button {
+    padding: 0 10px;
+    background: transparent;
+    color: #4a5568;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s ease;
+}
+
+/* Workspace activo — Verde Fel */
+#workspaces button.active {
+    color: #00ff87;
+    border-bottom: 3px solid #00ff87;
+    text-shadow: 0 0 8px rgba(0, 255, 135, 0.6);
+}
+
+/* Hover — Púrpura abismal */
+#workspaces button:hover {
+    background: rgba(139, 0, 255, 0.12);
+    color: #8b00ff;
+    border-bottom: 3px solid #8b00ff;
+}
+
+/* ----------------------------------------------------- */
+/* MÓDULOS DERECHA                                        */
+/* ----------------------------------------------------- */
+#cpu,
+#memory,
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#bluetooth,
+#tray {
+    padding: 0 10px;
+    margin: 0 2px;
+    color: #7a8a9a;
+    transition: color 0.15s ease;
+}
+
+#clock {
+    color: #00ff87;
+    /* Fel verde */
+    font-weight: bold;
+}
+
+#network {
+    color: #39d353;
+    /* Verde esmeralda */
+}
+
+#pulseaudio {
+    color: #8b00ff;
+    /* Púrpura */
+}
+
+#bluetooth {
+    color: #6b46c1;
+}
+
+/* Batería */
+#battery.warning {
+    color: #f6ad55;
+}
+
+#battery.critical {
+    color: #ff4444;
+    font-weight: bold;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    to {
+        opacity: 0.5;
+    }
+}
+
+/* Custom modules */
+#custom-airplane-mode {
+    color: #39d353;
+    padding: 0 8px;
+}

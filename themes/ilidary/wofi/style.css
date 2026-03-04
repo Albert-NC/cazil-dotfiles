@@ -1,0 +1,69 @@
+/* ==============================================================================
+   ILIDARY WOFI THEME — Illidan Stormrage
+   Launcher: Verde Fel + Púrpura Abismal
+============================================================================== */
+
+window {
+    margin: 0px;
+    border: 2px solid #00ff87;
+    background-color: #060b0f;
+    border-radius: 0px;
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 13px;
+}
+
+#input {
+    margin: 8px;
+    border: 1px solid #8b00ff;
+    border-radius: 0px;
+    color: #c9d1d9;
+    background-color: #0d1520;
+    padding: 8px 12px;
+    outline: none;
+}
+
+#input::placeholder {
+    color: #4a5568;
+}
+
+#inner-box {
+    margin: 4px 8px 8px 8px;
+    border: 0px;
+    background-color: #060b0f;
+    border-radius: 0px;
+}
+
+#outer-box {
+    margin: 0px;
+    border: 0px;
+    background-color: #060b0f;
+    border-radius: 0px;
+}
+
+#scroll {
+    margin: 0px;
+    border: 0px;
+}
+
+#entry {
+    margin: 0px;
+    border: 0px;
+    border-radius: 0px;
+    padding: 8px 10px;
+    color: #c9d1d9;
+}
+
+#entry:selected {
+    background-color: #00ff87;
+    color: #060b0f;
+    font-weight: bold;
+    border-radius: 0px;
+}
+
+#text {
+    margin: 0px 5px;
+}
+
+#img {
+    margin: 0px 5px;
+}

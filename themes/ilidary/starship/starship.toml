@@ -1,0 +1,106 @@
+format = """
+[ ](bg:#00ff87 fg:#060b0f)\
+$os\
+$username\
+[](bg:#8b00ff fg:#00ff87)\
+$directory\
+[](fg:#8b00ff bg:#39d353)\
+$git_branch\
+$git_status\
+[](fg:#39d353 bg:#1a0a2e)\
+$time\
+[](fg:#1a0a2e bg:#060b0f)\
+$cmd_duration\
+[  ](fg:#060b0f)\
+$line_break\
+$character 
+"""
+
+add_newline = true
+
+[character]
+success_symbol = "[└─❯❯](fg:#00ff87 bold)"
+error_symbol   = "[└─❯❯](fg:#ff4444 bold)"
+vimcmd_symbol  = "[└─❯❯](fg:#8b00ff bold)"
+
+[username]
+show_always = true
+style_user = "bg:#00ff87 fg:#060b0f bold"
+style_root = "bg:#ff4444 fg:#060b0f bold"
+format = '[$user ]($style)'
+disabled = false
+
+[os]
+style = "bg:#00ff87 fg:#060b0f"
+disabled = false
+
+[os.symbols]
+AlmaLinux = " "
+Alpine = " "
+Android = " "
+Arch = "󰣇 "
+Artix = " "
+CachyOS = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = " "
+Gentoo = " "
+Kali = " "
+Linux = " "
+Macos = " "
+Manjaro = " "
+Mint = "󰣭 "
+NetBSD = "🎌 "
+NixOS = "󱄅 "
+Nobara = " "
+OpenBSD = " "
+openSUSE = " "
+OracleLinux = "󰫼 "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+Solus = " "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
+Windows = " "
+
+[directory]
+style = "bg:#8b00ff fg:#e2e8f0 bold"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music"     = " "
+"Pictures"  = " "
+
+[git_branch]
+symbol = ""
+style = "bg:#39d353 fg:#060b0f bold"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#39d353 fg:#060b0f"
+format = '[$all_status$ahead_behind ]($style)'
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "bg:#1a0a2e fg:#00ff87"
+format = "[ 󰥔 $time ]($style)"
+
+[cmd_duration]
+disabled = false
+min_time = 2000
+style = "bg:#060b0f fg:#39d353"
+format = "[ 󰔛 $duration ]($style)"

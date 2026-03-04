@@ -1,0 +1,222 @@
+/* ==============================================================================
+   ILIDARY ROFI THEME — Illidan Stormrage
+   "You are not prepared."
+   Estilo: Bordes rectos, negro abismal, verde fel, púrpura
+============================================================================== */
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    display-drun: "󰣆 Apps";
+    display-run: "󰆍 Run";
+    display-window: "󱂬 Windows";
+    drun-display-format: "{name}";
+    window-format: "{w} · {c} · {t}";
+
+    kb-row-up: "Up,Control+k";
+    kb-row-down: "Down,Control+j";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-remove-to-eol: "";
+    kb-mode-next: "Shift+Right,Control+Tab";
+    kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+    kb-row-left: "Control+Page_Up";
+    kb-row-right: "Control+Page_Down";
+}
+
+/* ==============================================================================
+   PALETA ILLIDAN
+============================================================================== */
+* {
+    /* Negros abismales */
+    bg0:  #060b0f;      /* Negro profundo */
+    bg1:  #0d1520;      /* Azul-negro (paneles) */
+    bg2:  #1a0a2e;      /* Púrpura oscuro (hover) */
+
+    /* Textos */
+    fg0:  #c9d1d9;      /* Blanco frío */
+    fg1:  #4a5568;      /* Gris apagado */
+
+    /* Neón Illidan */
+    fel:     #00ff87;   /* Verde Fel (primario) */
+    abyssal: #8b00ff;   /* Púrpura Abismal (acento) */
+    emerald: #39d353;   /* Verde esmeralda */
+
+    background-color: transparent;
+    text-color: @fg0;
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+/* ==============================================================================
+   VENTANA
+============================================================================== */
+window {
+    transparency: "real";
+    background-color: rgba(6, 11, 15, 0.92);
+    border: 3px solid;
+    border-color: @fel;
+    border-radius: 0px;
+    padding: 0px;
+    width: 620px;
+}
+
+/* ==============================================================================
+   CONTENEDOR
+============================================================================== */
+mainbox {
+    background-color: @bg0;
+    children: [ inputbar, listview, message ];
+    spacing: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+/* ==============================================================================
+   BARRA DE BÚSQUEDA
+============================================================================== */
+inputbar {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 0px 0px 2px 0px solid;
+    border-color: @abyssal;
+    border-radius: 0px;
+    padding: 12px 15px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @fel;
+    font: "JetBrainsMono Nerd Font Bold 13";
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg0;
+    placeholder: "Buscar...";
+    placeholder-color: @fg1;
+}
+
+/* ==============================================================================
+   LISTA
+============================================================================== */
+listview {
+    background-color: @bg0;
+    columns: 1;
+    lines: 9;
+    spacing: 0px;
+    padding: 6px 0px;
+    scrollbar: true;
+    border: 0px;
+}
+
+/* ==============================================================================
+   ELEMENTOS
+============================================================================== */
+element {
+    background-color: transparent;
+    text-color: @fg0;
+    padding: 10px 15px;
+    spacing: 10px;
+    border: 0px;
+    border-radius: 0px;
+}
+
+element normal.normal    { background-color: transparent; text-color: @fg0; }
+element alternate.normal { background-color: transparent; text-color: @fg0; }
+
+/* Seleccionado: Fondo verde Fel, texto negro */
+element selected.normal {
+    background-color: @fel;
+    text-color: @bg0;
+    font: "JetBrainsMono Nerd Font Bold 12";
+}
+
+element selected.urgent  { background-color: #ff4444;  text-color: @bg0; }
+element selected.active  { background-color: @abyssal; text-color: @bg0; }
+
+element urgent.normal  { background-color: transparent; text-color: #ff4444; }
+element active.normal  { background-color: transparent; text-color: @emerald; }
+
+/* ==============================================================================
+   ICONOS
+============================================================================== */
+element-icon {
+    background-color: transparent;
+    size: 28px;
+    cursor: pointer;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    cursor: pointer;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* ==============================================================================
+   SCROLLBAR
+============================================================================== */
+scrollbar {
+    background-color: @bg1;
+    handle-color: @fel;
+    border: 0px;
+    border-radius: 0px;
+    handle-width: 3px;
+    padding: 0px;
+    margin: 0px 0px 0px 4px;
+}
+
+/* ==============================================================================
+   MENSAJES
+============================================================================== */
+message {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 2px 0px 0px 0px solid;
+    border-color: @fel;
+    padding: 10px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color: @fg0;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+error-message {
+    background-color: @bg0;
+    text-color: #ff4444;
+    border: 2px solid;
+    border-color: #ff4444;
+    border-radius: 0px;
+    padding: 15px;
+}
+
+/* ==============================================================================
+   MODE SWITCHER
+============================================================================== */
+mode-switcher {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 2px 0px 0px 0px solid;
+    border-color: @abyssal;
+    spacing: 0px;
+}
+
+button {
+    background-color: transparent;
+    text-color: @fg1;
+    padding: 10px;
+    border: 0px;
+    border-radius: 0px;
+}
+
+button selected {
+    background-color: @abyssal;
+    text-color: @fg0;
+    font: "JetBrainsMono Nerd Font Bold 12";
+}

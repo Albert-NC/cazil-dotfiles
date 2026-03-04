@@ -1,0 +1,83 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+/* ----------------------------------------------------- */
+/* ESTÉTICA CAZIL CYBERPUNK (Morado/Cyan/Rosa Neón)      */
+/* ----------------------------------------------------- */
+window#waybar {
+    background: rgba(13, 13, 20, 0.95);
+    /* Negro profundo */
+    color: #e0e0e8;
+    border-bottom: 2px solid #00ffff;
+    /* Cyan neón */
+    margin-top: -28px;
+    /* Ocultar barra dejando 2px de trigger */
+    transition: margin-top 0.2s ease-in-out;
+}
+
+window#waybar:hover {
+    margin-top: 0px;
+    /* Mostrar barra al pasar el ratón */
+}
+
+/* ----------------------------------------------------- */
+/* ESTILO DE MÓDULOS Y WORKSPACES                         */
+/* ----------------------------------------------------- */
+#workspaces button {
+    padding: 0 10px;
+    background: transparent;
+    color: #a0a0b0;
+    border-bottom: 3px solid transparent;
+}
+
+/* Workspace ACTIVO - Cyan neón */
+#workspaces button.active {
+    color: #00d9ff;
+    border-bottom: 3px solid #00d9ff;
+}
+
+/* Hover - Rosa neón */
+#workspaces button:hover {
+    box-shadow: inherit;
+    text-shadow: inherit;
+    color: #ff4da6;
+    border-bottom: 3px solid #ff4da6;
+}
+
+/* Módulos - Gris claro con acentos neón */
+#cpu,
+#memory,
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#tray {
+    padding: 0 10px;
+    margin: 0 4px;
+    color: #a0a0b0;
+}
+
+#clock {
+    color: #00d9ff;
+    /* Cyan neón */
+}
+
+#network {
+    color: #ff4da6;
+    /* Rosa neón */
+}
+
+/* Batería crítica */
+#battery.critical {
+    color: #ff4da6;
+    font-weight: bold;
+}
+
+#battery.warning {
+    color: #ffaa00;
+}

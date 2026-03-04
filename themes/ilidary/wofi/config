@@ -1,0 +1,7 @@
+allow_images=true
+allow_markup=true
+width=550
+prompt=
+lines=10
+location=0
+show=drun
