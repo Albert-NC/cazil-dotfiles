@@ -22,6 +22,19 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#fff3a3'
 
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null || source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null
 
+# Plugin fzf-tab (completado avanzado)
+if [[ -f /usr/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]]; then
+    source /usr/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+elif [[ -f /usr/share/zsh-fzf-tab/fzf-tab.plugin.zsh ]]; then
+    source /usr/share/zsh-fzf-tab/fzf-tab.plugin.zsh
+fi
+
+# Configuración fzf-tab (estética y preview)
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:*' fzf-command fzf
+zstyle ':fzf-tab:*' switch-group ',' '.'
+
 # --- 2. PATHS Y ENTORNO ---
 export PATH="$HOME/.local/bin:$PATH"
 export PATH=/usr/local/bin:$PATH

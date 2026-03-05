@@ -255,9 +255,12 @@ if [ "$DISTRO" = "arch" ]; then
             # El despliegue real ocurre en deploy_configs
         }
 
-        ask "¿Instalar utilidades de laptop (OSD, Night Light, Auto-mount)?" && \
-            pac gammastep udiskie network-manager-applet && \
+        ask "¿Instalar utilidades de laptop (Gestos, OSD, Night Light, Auto-mount)?" && {
+            pac gammastep udiskie network-manager-applet libinput-gestures
             aur swayosd-git
+            sudo usermod -aG input "$USER"
+            # El despliegue de libinput-gestures.conf ocurre en deploy_configs
+        }
         
         ask "¿Instalar soporte para Periféricos? (Logitech, Razer, Gaming Mice)" && {
             ask "  ¿Instalar Solaar (Logitech)?" && pac solaar
@@ -289,8 +292,9 @@ if [ "$DISTRO" = "arch" ]; then
 
         ask "¿Instalar Starship?" && pac starship
 
-        ask "¿Instalar ZSH + plugins?" && {
+        ask "¿Instalar ZSH + plugins mejorados?" && {
             pac zsh zsh-autosuggestions zsh-syntax-highlighting
+            aur zsh-fzf-tab-git
             chsh -s /usr/bin/zsh "$USER" 2>/dev/null || true
         }
 
@@ -318,8 +322,8 @@ if [ "$DISTRO" = "arch" ]; then
             fi
         }
 
-        ask "¿Instalar multimedia (mpv, vlc, imv)?" && \
-            pac mpv vlc imv
+        ask "¿Instalar multimedia (mpv, vlc, imv, easyeffects)?" && \
+            pac mpv vlc imv easyeffects
 
         ask "¿Instalar KeePassXC?" && pac keepassxc
 
@@ -585,6 +589,11 @@ deploy_configs() {
         _put "$THEME_DIR/zsh/.zshrc" "$HOME/.zshrc"
     fi
 
+    # Gestos del Touchpad
+    if [ -f "$SHARED_DIR/libinput-gestures.conf" ]; then
+        _put "$SHARED_DIR/libinput-gestures.conf" "$HOME/.config/libinput-gestures.conf"
+    fi
+
     # Actualizar alias de scripts para que apunten a ~/.local/bin (independiente del repo)
     if [ -f "$HOME/.zshrc" ]; then
         sed -i 's|alias limpiar-kali=.*|alias limpiar-kali="bash $HOME/.local/bin/limpiar-kali"|' "$HOME/.zshrc"
@@ -723,6 +732,7 @@ deploy_configs() {
             battery-limit) name="battery-limit" ;;
             docker_init) name="docker_init" ;;
             docker_delete) name="delete_total" ;;
+            zoom) name="zoom" ;;
         esac
         cp "$script" "$HOME/.local/bin/$name"
         chmod +x "$HOME/.local/bin/$name"
