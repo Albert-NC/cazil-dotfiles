@@ -26,16 +26,14 @@
     "hyprland/workspaces#pacman": {
         "format": " {icon} ",
         "all-outputs": true,
+        "active-only": false,
+        "on-click": "activate",
         "format-icons": {
-            "1": "󰮇",
-            "2": "󰮆",
-            "3": "󰮅",
-            "4": "󰮄",
-            "5": "󰮃",
+            "active": "󰊯",
             "default": "󰊠",
-            "active": "󰊯"
+            "empty": ""
         },
-        "tooltip": true
+        "persistent-workspaces": {}
     },
     "custom/airplane-mode": {
         "exec": "modo_avion",

@@ -5,7 +5,7 @@ Unificado y potente set de configuraciones para **Hyprland** en Arch Linux y Deb
 ![Cyberpunk](https://img.shields.io/badge/Theme-218_Cyberpunk-magenta)
 ![Minimal](https://img.shields.io/badge/Theme-Ilidary_Green-green)
 ![Hyprland](https://img.shields.io/badge/WM-Hyprland-blue)
-![Virtualization](https://img.shields.io/badge/Virtualization-QEMU%2FDocker-orange)
+![Laptop](https://img.shields.io/badge/Optimization-Laptop_Nitro-red)
 
 ---
 
@@ -28,16 +28,32 @@ bash install.sh
 
 ---
 
-## 🎨 Los Dos Mundos
+## 💻 Optimizaciones de Laptop (Acer Nitro)
+
+Este set de dotfiles incluye mejoras específicas para laptops de alto rendimiento:
+
+### � Control de Hardware
+- **Ventiladores**: Control total mediante el script `fans` (requiere `ec_sys`).
+- **Luces RGB**: Driver `nitro-rgb` integrado para teclados de 4 zonas.
+- **Batería**: Límite de carga al 80% configurable para extender la vida útil.
+
+### 🖖 Gestos y Navegación
+Gestos multi-toque de 3 y 4 dedos mediante `libinput-gestures`:
+- **3 Dedos**: Deslizar para cambiar de escritorio, arriba para menú, abajo para cerrar.
+- **Pinch (Zoom)**: Pellizcar para hacer zoom global en la pantalla (In/Out).
+- **4 Dedos**: Volver al escritorio anterior o alternar monitor externo.
+
+### 🔊 Audio Premium
+- **EasyEffects**: Configuración pre-cargada para mejorar la respuesta de bajos y claridad en altavoces de laptop.
+
+---
+
+## �🎨 Los Dos Mundos
 
 ### 1. 🌈 218 — Cyberpunk (Modo Dinámico)
 - **Presets de Color:** Cambia el alma del sistema con un comando (9 paletas neón).
 - **Estética:** Futurista, bordes brillantes, animaciones fluidas.
-- **Barra Inteligente:** Waybar con *autohide* y monitor de conexiones inteligentes.
-
-### 2. 🌿 Ilidary — Minimalista
-- **Estética:** Abisal, pacífica y eficiente.
-- **Foco:** Máximo contraste y limpieza visual.
+- **Barra Inteligente:** Waybar dinámica con autohide y **workspaces inteligentes** (solo muestra lo usado +1 libre).
 
 ---
 
@@ -46,53 +62,20 @@ bash install.sh
 | Atajo                  | Acción                              |
 |------------------------|-------------------------------------|
 | `SUPER` (Soltar)       | **Lanzador Rofi Futurista**         |
+| `3 Dedos Swipe`        | Cambiar Workspace / Menú / Cerrar   |
+| `Pinch 2 Dedos`        | **Zoom In / Out** (Sistema)         |
 | `SUPER + T`            | Terminal (Kitty)                    |
-| `SUPER + B`            | Navegador (Brave)                   |
-| `SUPER + F`            | Archivos (Thunar)                   |
-| `SUPER + C`            | Código (VSCode)                     |
-| `SUPER + L`            | Bloqueo Cyberpunk (hyprlock)        |
-| `SUPER + SHIFT + C`    | Recargar Configuración              |
 | `SUPER + V`            | Historial del Portapapeles          |
-| `SUPER + Print`        | Screenshot de pantalla              |
-| `SUPER + 1–5`          | Navegación Pacman Workspaces        |
+| `SUPER + O`            | Toggle Monitor Externo              |
 
 ---
 
 ## 🛠️ Super-Comandos Integrados
 
-Tu sistema incluye un set de scripts optimizados para manejar tu hardware y entorno:
-
-### ⚡ Estética y Energía
-- `tema [PC|PP|VV|LG...]`: Cambia instantáneamente los colores de **todo** el tema 218.
-- `anims`: **Modo Eco Inteligente**. Activa/desactiva animaciones, blur y transparencias para ahorrar batería máxima.
-
-### 🐳 Virtualización y Red
-- **Docker**: Alias integrados (`dps`, `dc`, `dstop`) para control total.
-- **QEMU/KVM**: Gestor de máquinas virtuales (`vms`) pre-configurado.
-- **SSH Intelligent Monitor**: Icono dinámico (󰖟) en la barra cuando hay conexiones abiertas.
-- **WiFi Detail**: Nombre de red (SSID) y tooltip con IP y señal.
-
-### 🛡️ Seguridad y Hardware
-- **Nmap & Firewall**: Atajos rápidos para auditoría y seguridad.
-- **USBGuard**: Bloqueo de dispositivos USB desconocidos.
-- **RGB & Fans**: `nitro-rgb` y `fans` para laptops Acer Nitro.
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-cazil-dotfiles/
-├── install.sh             ← El cerebro del despliegue
-├── shared/
-│   ├── zsh/.zshrc         ← Shell pro con alias de seguridad/docker
-│   ├── hypr/              ← Entorno unificado (NVIDIA, Input ES)
-│   ├── sscript/           ← El arsenal: tema, anims, ssh-monitor...
-│   └── fonts/             ← Nerd Fonts & Emojis
-└── themes/
-    ├── 218/               ← Cyberpunk (Dinámico)
-    └── ilidary/           ← Minimalista Abisal
-```
+- `tema [PC|PP|VV|LG...]`: Cambia instantáneamente los colores de **todo**.
+- `anims`: **Modo Eco**. Desactiva efectos para ahorrar batería.
+- `zoom [in|out|reset]`: Control de zoom manual (también vía gestos).
+- `fzf-tab`: Autocompletado visual en Zsh con previews de archivos.
 
 ---
 *Diseñado por **Cazil**. Llevando Arch Linux al límite de lo visual.*
