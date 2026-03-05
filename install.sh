@@ -360,7 +360,30 @@ if [ "$DISTRO" = "arch" ]; then
             log "${GREEN}[✓] Virtualización instalada. Reinicia para aplicar grupos.${NC}"
         }
 
+        ask "¿Instalar Soporte para WinApps (Apps de Windows en Linux)?" && {
+            # Dependencias críticas
+            pac freerdp libvirt virt-manager
+            
+            # Clonar repo de WinApps si no existe
+            local WA_DIR="$HOME/.local/share/winapps"
+            if [ ! -d "$WA_DIR" ]; then
+                log "${CYAN}[*] Clonando WinApps...${NC}"
+                git clone https://github.com/winapps-org/winapps.git "$WA_DIR"
+                (cd "$WA_DIR" && ./setup.sh --user) || true
+            fi
+            log "${GREEN}[✓] WinApps preparado. Revisa el GUIDE.md en shared/winapps${NC}"
+        }
+
         ask "¿Instalar wlogout (Menú de salida)?" && pac wlogout
+        ask "¿Instalar Joplin Desktop (Notas Cloud)?" && pac joplin-desktop
+        ask "¿Instalar SWWW (Fondos Animados/GIFs)?" && pac swww
+        ask "¿Instalar KeePassXC (Gestor de Contraseñas)?" && pac keepassxc
+        ask "¿Instalar Tesseract OCR (Reconocimiento de Texto)?" && pac tesseract-ocr tesseract-ocr-spa
+
+        ask "¿Instalar Timeshift (Backups del Sistema)?" && {
+            pac timeshift
+            log "${GREEN}[✓] Timeshift instalado. Úsalo para backups.${NC}"
+        }
 
         ask "¿Instalar Ly (Display Manager con animación Matrix)?" && {
             if ! is_installed_pac ly; then
@@ -619,6 +642,13 @@ deploy_configs() {
         log "${GREEN}  [✓]   pyprland.toml (shared) → ~/.config/hypr/pyprland.toml${NC}"
     fi
 
+    # WinApps Config
+    if [ -f "$SHARED_DIR/winapps/winapps.conf" ]; then
+        mkdir -p "$HOME/.config/winapps"
+        cp "$SHARED_DIR/winapps/winapps.conf" "$HOME/.config/winapps/winapps.conf"
+        log "${GREEN}  [✓]   winapps.conf (shared) → ~/.config/winapps/winapps.conf${NC}"
+    fi
+
     # Wallpapers → ~/Pictures/wallpapers/
     if [ -d "$THEME_DIR/wallpapers" ]; then
         mkdir -p "$HOME/Pictures/wallpapers"
@@ -725,6 +755,9 @@ deploy_configs() {
             power-save) name="eco-mode" ;;
             gpu-check) name="gpu-check" ;;
             modo_avion) name="modo_avion" ;;
+            limpiar_sistema) name="limpiar-sistema" ;;
+            wallpaper-dinamico) name="gif-on" ;;
+            ocr_pantalla) name="ocr-magico" ;;
             tema) name="tema" ;;
             ssh-monitor) name="ssh-monitor" ;;
             limpiar_kali) name="limpiar-kali" ;;

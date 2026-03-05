@@ -109,6 +109,8 @@ alias battery-100='battery-limit 100'
 alias eco-on='eco-mode on'
 alias eco-off='eco-mode off'
 alias anims='anims'
+alias gif-on='gif-on on'
+alias gif-off='gif-on off'
 alias tema='tema'
 
 # --- 7. RGB Y PERIFÉRICOS ---
@@ -143,6 +145,10 @@ alias debian_off='ssh -t debian01@192.168.122.76 "sudo poweroff"'
 alias arch_on='qemu-system-x86_64 -name arch-hyprland -machine type=q35,accel=kvm -cpu host -smp 8 -m 8G -drive file=$HOME/Proyectos/qemu/maquinas/arch-hyprland.qcow2,format=qcow2,if=virtio -vga std -display sdl,gl=on -netdev bridge,id=net0,br=virbr0 -device virtio-net-pci,netdev=net0 -enable-kvm &'
 alias android_on='qemu-system-x86_64 -enable-kvm -m 6144 -smp 6 -cpu host -hda ~/Proyectos/qemu/maquinas/android-final.qcow2 -boot c -vga qxl -display gtk,zoom-to-fit=on -audiodev pa,id=snd0 -device intel-hda -device hda-duplex,audiodev=snd0 &'
 alias android_off='pkill -9 qemu-system-x86'
+# Herramientas de Mantenimiento
+alias limpiar="/usr/local/bin/limpiar-sistema"
+alias backup="sudo timeshift-gtk"
+alias backup-cli="sudo timeshift"
 alias vms='virt-manager'
 alias vm-list='virsh list --all'
 alias scrcpy_game='scrcpy --turn-screen-off --max-fps 60 --video-bit-rate 12M --audio-source=output'
