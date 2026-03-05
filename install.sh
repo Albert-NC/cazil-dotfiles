@@ -249,9 +249,24 @@ if [ "$DISTRO" = "arch" ]; then
             pac tlp auto-cpufreq && \
             sudo systemctl enable tlp auto-cpufreq
 
+        ask "¿Configurar Límite de Carga de Batería (Acer Nitro)?" && {
+            pac linux-headers
+            aur acer-wmi-battery-dkms
+            # El despliegue real ocurre en deploy_configs
+        }
+
         ask "¿Instalar utilidades de laptop (OSD, Night Light, Auto-mount)?" && \
             pac gammastep udiskie network-manager-applet && \
             aur swayosd-git
+        
+        ask "¿Instalar soporte para Periféricos? (Logitech, Razer, Gaming Mice)" && {
+            ask "  ¿Instalar Solaar (Logitech)?" && pac solaar
+            ask "  ¿Instalar Piper/libratbag (Mouses Gaming)?" && pac piper libratbag
+            ask "  ¿Instalar OpenRazer (Teclados/Mouses Razer)?" && {
+                aur openrazer-meta polyrgb-git
+                sudo usermod -aG plugdev "$USER"
+            }
+        }
 
         # Multimedia y Utilidades
         aur_install swww mako fastfetch-git starship python-pyprland playerctl vlc
@@ -262,6 +277,12 @@ if [ "$DISTRO" = "arch" ]; then
             sudo systemctl enable --now usbguard
             sudo systemctl enable --now ufw
             log "${GREEN}[✓] Seguridad configurada básica (Recuerda autorizar tus USBs).${NC}"
+        }
+
+        ask "¿Instalar Herramientas Power User (eza, bat, btop, lazygit, lazydocker)?" && {
+            pac eza bat btop tldr fd ripgrep
+            aur lazygit-bin lazydocker-bin
+            log "${GREEN}[✓] Herramientas de productividad instaladas.${NC}"
         }
 
         ask "¿Instalar Fastfetch?" && pac fastfetch
@@ -275,15 +296,40 @@ if [ "$DISTRO" = "arch" ]; then
 
         ask "¿Instalar Thunar (gestor de archivos)?" && \
             pac thunar gvfs tumbler thunar-volman
+        
+        ask "¿Instalar Yazi (gestor de archivos terminal)?" && \
+            pac yazi imagemagick ffmpegthumbnailer poppler fzf zoxide
+        
+        ask "¿Instalar Soporte para Impresoras (CUPS)?" && {
+            pac cups cups-pdf system-config-printer ghostscript avahi nss-mdns
+            sudo systemctl enable --now cups
+            sudo systemctl enable --now avahi-daemon
+            
+            # Configurar Avahi para resolución de nombres .local (común en impresoras WiFi)
+            sudo sed -i 's/^hosts: .*/hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns/' /etc/nsswitch.conf
+            
+            if ask "¿Tu impresora es Brother?"; then
+                echo -ne "${YELLOW}  Introduce el modelo (ej: dcpt520w): ${NC}"
+                read -r B_MODEL
+                B_MODEL=${B_MODEL:-dcpt520w}
+                # La mayoría de drivers Brother en AUR siguen el patrón brother-modelo
+                aur "brother-$B_MODEL" brscan4 sane
+                log "${GREEN}  [✓]   Driver brother-$B_MODEL (AUR) añadido a la cola de instalación${NC}"
+            fi
+        }
 
         ask "¿Instalar multimedia (mpv, vlc, imv)?" && \
             pac mpv vlc imv
 
         ask "¿Instalar KeePassXC?" && pac keepassxc
 
-        ask "¿Instalar navegadores?" && {
+        ask "¿Instalar navegadores (Firefox + Brave)?" && {
             pac firefox
             aur brave-bin
+        }
+
+        ask "¿Instalar Visual Studio Code (Oficial - AUR)?" && {
+            aur visual-studio-code-bin
         }
 
         ask "¿Instalar TLP (ahorro de energía)?" && {
@@ -465,6 +511,11 @@ else
             chsh -s /usr/bin/zsh "$USER" 2>/dev/null || true
         }
         ask "¿Instalar Thunar?" && pac thunar gvfs tumbler
+        ask "¿Instalar Yazi?" && pac yazi imagemagick ffmpegthumbnailer poppler-utils
+        ask "¿Instalar Soporte para Impresoras?" && {
+            pac cups cups-pdf system-config-printer hplip
+            sudo systemctl enable --now cups
+        }
         ask "¿Instalar multimedia?" && pac mpv vlc
         ask "¿Instalar KeePassXC?" && pac keepassxc
         ask "¿Instalar Docker?" && {
@@ -498,6 +549,16 @@ deploy_configs() {
     log "${CYAN}  DESPLEGANDO CONFIGS → sistema ($THEME_NAME)   ${NC}"
     log "${CYAN}════════════════════════════════════════════════${NC}"
 
+    # ── Crear Carpetas Estándar ──────────────────────────────────────────────
+    log "${CYAN}[*] Creando carpetas de usuario estándar...${NC}"
+    if command_exists xdg-user-dirs-update; then
+        xdg-user-dirs-update
+        log "${GREEN}  [✓]   Carpetas XDG actualizadas (Documents, Downloads, etc.)${NC}"
+    else
+        mkdir -p "$HOME/Documents" "$HOME/Downloads" "$HOME/Music" "$HOME/Pictures" "$HOME/Videos" "$HOME/Public" "$HOME/Templates"
+        log "${GREEN}  [✓]   Carpetas creadas manualmente${NC}"
+    fi
+
     # ── Tema ────────────────────────────────────────────────────────────────────
     _put "$THEME_DIR/hypr"     "$HOME/.config/hypr"
     _put "$THEME_DIR/waybar"   "$HOME/.config/waybar"
@@ -506,6 +567,7 @@ deploy_configs() {
     _put "$THEME_DIR/wofi"     "$HOME/.config/wofi"
     _put "$THEME_DIR/mako"     "$HOME/.config/mako"
     _put "$THEME_DIR/fastfetch" "$HOME/.config/fastfetch"
+    _put "$THEME_DIR/yazi"     "$HOME/.config/yazi"
     _put "$THEME_DIR/vscode-user" "/tmp/vscode-user-tmp" 2>/dev/null || true
     [ -d "$THEME_DIR/vscode-user" ] && {
         mkdir -p "$HOME/.config/Code/User"
@@ -521,6 +583,16 @@ deploy_configs() {
         _put "$SHARED_DIR/zsh/.zshrc" "$HOME/.zshrc"
     elif [ -f "$THEME_DIR/zsh/.zshrc" ]; then
         _put "$THEME_DIR/zsh/.zshrc" "$HOME/.zshrc"
+    fi
+
+    # Actualizar alias de scripts para que apunten a ~/.local/bin (independiente del repo)
+    if [ -f "$HOME/.zshrc" ]; then
+        sed -i 's|alias limpiar-kali=.*|alias limpiar-kali="bash $HOME/.local/bin/limpiar-kali"|' "$HOME/.zshrc"
+        sed -i 's|alias crear-maquina=.*|alias crear-maquina="bash $HOME/.local/bin/crear-maquina"|' "$HOME/.zshrc"
+        sed -i 's|alias battery-100=.*|alias battery-100="battery-limit 100"|' "$HOME/.zshrc"
+        sed -i 's|alias docker_init=.*|alias docker_init="bash $HOME/.local/bin/docker_init"|' "$HOME/.zshrc"
+        sed -i 's|alias delete_total=.*|alias delete_total="bash $HOME/.local/bin/delete_total"|' "$HOME/.zshrc"
+        log "${GREEN}  [✓]   Alias de scripts actualizados en ~/.zshrc (persistent)${NC}"
     fi
 
     # env.conf + hypridle.conf → shared unificado → ~/.config/hypr/
@@ -646,6 +718,11 @@ deploy_configs() {
             modo_avion) name="modo_avion" ;;
             tema) name="tema" ;;
             ssh-monitor) name="ssh-monitor" ;;
+            limpiar_kali) name="limpiar-kali" ;;
+            crear_maquina) name="crear-maquina" ;;
+            battery-limit) name="battery-limit" ;;
+            docker_init) name="docker_init" ;;
+            docker_delete) name="delete_total" ;;
         esac
         cp "$script" "$HOME/.local/bin/$name"
         chmod +x "$HOME/.local/bin/$name"
@@ -661,6 +738,14 @@ deploy_configs() {
             echo "options ec_sys write_support=1" | sudo tee /etc/modprobe.d/ec_sys.conf > /dev/null
         fi
         sudo modprobe ec_sys write_support=1 2>/dev/null || true
+    fi
+
+    # Configuración de límite de batería (Service)
+    if [ -f "$SSCRIPT/battery-limit.service" ]; then
+        sudo cp "$SSCRIPT/battery-limit.service" "/etc/systemd/system/battery-limit.service"
+        sudo systemctl daemon-reload
+        sudo systemctl enable battery-limit.service 2>/dev/null || true
+        log "${GREEN}  [✓]   battery-limit.service habilitado (80% Default)${NC}"
     fi
 
     log ""

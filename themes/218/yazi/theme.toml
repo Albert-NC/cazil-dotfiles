@@ -1,0 +1,37 @@
+[manager]
+cwd = { fg = "#00FFFF" }
+
+# Hover
+hovered         = { fg = "#000000", bg = "#FF00FF", bold = true }
+preview_hovered = { underline = true }
+
+# Selection
+selected = { fg = "#000000", bg = "#FF00FF" }
+
+# Finder
+find_keyword  = { fg = "#FFFF00", italic = true }
+find_position = { fg = "#FF00FF", bg = "reset" }
+
+# Highlighting
+syntect_theme = ""
+
+[status]
+separator_open  = ""
+separator_close = ""
+
+# Mode
+mode_normal = { fg = "#000000", bg = "#00FFFF", bold = true }
+mode_select = { fg = "#000000", bg = "#FF00FF", bold = true }
+mode_un_set = { fg = "#000000", bg = "#FFFF00", bold = true }
+
+# Progress
+progress_label  = { fg = "#000000", bg = "#00FFFF", bold = true }
+progress_normal = { fg = "#00FFFF", bg = "#333333" }
+progress_error  = { fg = "#FF0000", bg = "#333333" }
+
+# Permissions
+permissions_t = { fg = "#00FFFF" }
+permissions_r = { fg = "#FFFF00" }
+permissions_w = { fg = "#FF00FF" }
+permissions_x = { fg = "#00FF00" }
+permissions_s = { fg = "#666666" }

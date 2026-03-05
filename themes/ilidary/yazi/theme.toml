@@ -1,0 +1,37 @@
+[manager]
+cwd = { fg = "#4CAF50" }
+
+# Hover
+hovered         = { fg = "#000000", bg = "#4CAF50", bold = true }
+preview_hovered = { underline = true }
+
+# Selection
+selected = { fg = "#000000", bg = "#4CAF50" }
+
+# Finder
+find_keyword  = { fg = "#795548", italic = true }
+find_position = { fg = "#4CAF50", bg = "reset" }
+
+# Highlighting
+syntect_theme = ""
+
+[status]
+separator_open  = ""
+separator_close = ""
+
+# Mode
+mode_normal = { fg = "#FFFFFF", bg = "#4CAF50", bold = true }
+mode_select = { fg = "#FFFFFF", bg = "#FF9800", bold = true }
+mode_un_set = { fg = "#FFFFFF", bg = "#607D8B", bold = true }
+
+# Progress
+progress_label  = { fg = "#FFFFFF", bg = "#4CAF50", bold = true }
+progress_normal = { fg = "#4CAF50", bg = "#333333" }
+progress_error  = { fg = "#D32F2F", bg = "#333333" }
+
+# Permissions
+permissions_t = { fg = "#4CAF50" }
+permissions_r = { fg = "#A5D6A7" }
+permissions_w = { fg = "#81C784" }
+permissions_x = { fg = "#C8E6C9" }
+permissions_s = { fg = "#666666" }
