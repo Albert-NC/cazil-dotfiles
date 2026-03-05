@@ -93,6 +93,7 @@ Cambia el alma del sistema con el comando `tema [CÓDIGO]`. Nueve paletas neón 
 | | `SUPER + CTRL + Print`| **Captura Interactiva** (Imagen) |
 | | `SUPER + Shift + V` | Historial del Portapapeles |
 | | `SUPER + ALT + Print` | **OCR Mágico** (Copiar texto de pantalla) |
+| | `pdf <comando>` | **Utilidad PDF Universitaria** |
 | | `SUPER + O` | **Alternar Monitor Externo** |
 | **Sistema** | `SUPER + ESC` / `L` | Bloquear Pantalla |
 | | `SUPER + Shift + ESC` | Menú de Apagado / Salida |

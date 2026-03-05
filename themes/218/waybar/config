@@ -15,6 +15,7 @@
         "mpris"
     ],
     "modules-right": [
+        "custom/security",
         "custom/airplane-mode",
         "battery#cazil_elegant",
         "network",
@@ -34,6 +35,13 @@
             "empty": ""
         },
         "persistent-workspaces": {}
+    },
+    "custom/security": {
+        "exec": "security-status",
+        "return-type": "json",
+        "interval": 10,
+        "format": "{}",
+        "tooltip": true
     },
     "custom/airplane-mode": {
         "exec": "modo_avion",

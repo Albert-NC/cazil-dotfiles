@@ -378,7 +378,11 @@ if [ "$DISTRO" = "arch" ]; then
         ask "¿Instalar Joplin Desktop (Notas Cloud)?" && pac joplin-desktop
         ask "¿Instalar SWWW (Fondos Animados/GIFs)?" && pac swww
         ask "¿Instalar KeePassXC (Gestor de Contraseñas)?" && pac keepassxc
+        ask "¿Instalar Herramientas PDF (ghostscript, qpdf, imagemagick)?" && pac ghostscript qpdf imagemagick
         ask "¿Instalar Tesseract OCR (Reconocimiento de Texto)?" && pac tesseract-ocr tesseract-ocr-spa
+        ask "¿Configurar DNS Seguro (DNS over TLS / Cloudflare)?" && bash "$SHARED_DIR/sscript/config-dns-seguro.sh"
+        ask "¿Activar Modo Fantasma (MAC Aleatoria)? (Recomendado para Laptops)" && bash "$SHARED_DIR/sscript/config-mac-fantasma.sh"
+        ask "¿Aplicar Hardening del Kernel (Seguridad Plus)? (sysctl)" && bash "$SHARED_DIR/sscript/config-hardening.sh"
 
         ask "¿Instalar Timeshift (Backups del Sistema)?" && {
             pac timeshift
@@ -758,6 +762,11 @@ deploy_configs() {
             limpiar_sistema) name="limpiar-sistema" ;;
             wallpaper-dinamico) name="gif-on" ;;
             ocr_pantalla) name="ocr-magico" ;;
+            config-dns-seguro) name="dns-seguro" ;;
+            mac-real) name="mac-real" ;;
+            config-hardening) name="kernel-hard" ;;
+            security-status) name="security-status" ;;
+            pdf) name="pdf" ;;
             tema) name="tema" ;;
             ssh-monitor) name="ssh-monitor" ;;
             limpiar_kali) name="limpiar-kali" ;;
