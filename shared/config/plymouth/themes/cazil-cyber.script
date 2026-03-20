@@ -1,0 +1,176 @@
+# ============================================================
+# CAZIL CYBERPUNK — Plymouth Overhaul
+# Colores: Rosado (#FFB6C1) y Magenta (#FF00FF)
+# Fondo: Animación 54 frames (shared/gif/gif1)
+# Mensaje: Bienvenido CZ
+# LUKS: Clave porfavor + Cuadrado + Puntos animados
+# ============================================================
+
+screen_width  = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+# ─── FALLBACKS ───────────────────────────────────────────────
+fun safe_sin(angle) {
+    if (angle < 90)  { return angle / 90; }
+    if (angle < 180) { return (180 - angle) / 90; }
+    if (angle < 270) { return -((angle - 180) / 90); }
+    return -((360 - angle) / 90);
+}
+
+color_pink_r = 1.0;  color_pink_g = 0.71; color_pink_b = 0.76;
+color_mag_r  = 1.0;  color_mag_g = 0.0;  color_mag_b = 1.0;
+
+# ─── FUENTES ──────────────────────────────────────────────────
+font_name = "JetBrainsMono Nerd Font";
+font_size = 70;
+font_str  = font_name + " " + font_size;
+
+# ─── PRECARGAR TODOS LOS FRAMES ──────────────────────────────
+# Los frames se llaman: 0.png … 53.png
+total_frames  = 54;
+
+for (i = 0; i < total_frames; i++) {
+    frame[i] = Image(i + ".png").Scale(screen_width, screen_height);
+}
+
+# Sprite donde se mostrará cada frame
+bg_sprite = Sprite();
+bg_sprite.SetX(0);
+bg_sprite.SetY(0);
+bg_sprite.SetZ(-100);
+
+# ─── MENSAJE DINÁMICO (Boot / Shutdown) ────────────────────────
+welcome_img  = Image.Text("BIENVENIDO C4Z", color_pink_r, color_pink_g, color_pink_b, 1, font_str);
+shutdown_img = Image.Text("nos vemos pronto C4z", color_pink_r, color_pink_g, color_pink_b, 1, font_str);
+
+welcome_sprite = Sprite();
+welcome_sprite.SetY(screen_height * 0.40);
+welcome_sprite.SetZ(10);
+
+# ─── TEXTO CAZIL INFERIOR ────────────────────────────────────
+logo_img    = Image.Text("CAZIL SYSTEM", color_mag_r, color_mag_g, color_mag_b, 1, font_str);
+logo_sprite = Sprite(logo_img);
+logo_sprite.SetX(screen_width  / 2 - logo_img.GetWidth()  / 2);
+logo_sprite.SetY(screen_height - 60);
+logo_sprite.SetZ(1);
+
+# ─── PUNTOS ANIMADOS (Carga normal) ───────────────────────────
+pulse_sprite = Sprite();
+pulse_sprite.SetZ(15);
+pulse_angle = 0;
+
+# ─── TEXTO DE ESTADO / LUKS ──────────────────────────────────
+status_sprite  = Sprite();
+status_sprite.SetZ(20);
+
+bullets_sprite = Sprite();
+bullets_sprite.SetZ(25);
+
+# ─── CUADRADO DE CONTRASEÑA ──────────────────────────────────
+# (Usaremos una imagen pequeña escalada para crear un borde)
+box_img = Image(4, 4);
+box_img.Fill(color_pink_r, color_pink_g, color_pink_b, 1.0);
+box_sprite = Sprite();
+box_sprite.SetZ(5);
+box_sprite.SetOpacity(0); # Oculto por defecto
+
+box_w = 400;
+box_h = 50;
+box_scaled = box_img.Scale(box_w, box_h);
+box_sprite.SetImage(box_scaled);
+box_sprite.SetX(screen_width / 2 - box_w / 2);
+box_sprite.SetY(screen_height * 0.53);
+
+# ─── CONTROL DE ANIMACIÓN ────────────────────────────────────
+current_frame = 0;
+tick          = 0;
+speed         = 2; # Velocidad de la animación
+
+# ─── REFRESH CALLBACK ────────────────────────────────────────
+fun refresh_callback() {
+    # 0. Actualizar texto según el modo (Boot vs Shutdown)
+    if (Plymouth.GetMode() == "shutdown") {
+        welcome_sprite.SetImage(shutdown_img);
+        welcome_sprite.SetX(screen_width / 2 - shutdown_img.GetWidth() / 2);
+    } else {
+        welcome_sprite.SetImage(welcome_img);
+        welcome_sprite.SetX(screen_width / 2 - welcome_img.GetWidth() / 2);
+    }
+
+    # 1. Animación de fondo (siempre activa: boot y shutdown)
+    tick = tick + 1;
+    if (tick >= speed) {
+        tick = 0;
+        current_frame = (current_frame + 1) % total_frames;
+
+        if (frame[current_frame]) {
+            bg_sprite.SetImage(frame[current_frame]);
+        }
+    }
+
+    # 2. Puntos animados (● ● ●)
+    pulse_angle = (pulse_angle + 6) % 360;
+    alpha = 0.4 + 0.6 * safe_sin(pulse_angle);
+    dots_img = Image.Text("● ● ●", color_pink_r, color_pink_g, color_pink_b, alpha, font_str);
+    pulse_sprite.SetImage(dots_img);
+    pulse_sprite.SetX(screen_width  / 2 - dots_img.GetWidth()  / 2);
+    
+    # Si estamos en modo password, bajar los puntos
+    if (Plymouth.GetMode() == "boot" || Plymouth.GetMode() == "shutdown") {
+        pulse_sprite.SetY(screen_height * 0.55);
+    }
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ─── CONTRASEÑA LUKS Rediseñada ──────────────────────────────
+fun display_password_callback(prompt, bullets) {
+    # 0. Asegurar visibilidad de los bullets (estrellas)
+    bullets_sprite.SetOpacity(1);
+
+    # 1. Ocultar el pulso de carga normal
+    pulse_sprite.SetOpacity(0.4); 
+
+    # 2. Texto de Clave porfavor
+    prompt_msg = "Clave porfavor";
+    prompt_img = Image.Text(prompt_msg, color_mag_r, color_mag_g, color_mag_b, 1, font_str);
+    
+    # 3. Bullets (asteriscos)
+    bullet_str = "";
+    for (i = 0; i < bullets; i++) { bullet_str += "█"; }
+    bullets_img = Image.Text(bullet_str, color_pink_r, color_pink_g, color_pink_b, 1, font_str);
+
+    # Mostrar prompt y bullets
+    status_sprite.SetImage(prompt_img);
+    status_sprite.SetX(screen_width / 2 - prompt_img.GetWidth() / 2);
+    status_sprite.SetY(screen_height * 0.48);
+
+    # Dibujar el "Cuadrado" (Caja de input)
+    box_sprite.SetOpacity(0.2); # Fondo tenue para el cuadro
+
+    # Dibujar bullets dentro del cuadro
+    bullets_sprite.SetImage(bullets_img);
+    bullets_sprite.SetX(screen_width / 2 - bullets_img.GetWidth() / 2);
+    bullets_sprite.SetY(screen_height * 0.54);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+# ─── MENSAJES DEL SISTEMA ────────────────────────────────────
+fun message_callback(text) {
+    msg_img = Image.Text(text, color_pink_r, color_pink_g, color_pink_b, 1, font_str);
+    status_sprite.SetImage(msg_img);
+    status_sprite.SetX(screen_width / 2 - msg_img.GetWidth() / 2);
+    status_sprite.SetY(screen_height * 0.70);
+}
+
+Plymouth.SetMessageFunction(message_callback);
+
+fun display_normal_callback() {
+    # Limpiar estado LUKS al volver a normal
+    box_sprite.SetOpacity(0);
+    bullets_sprite.SetOpacity(0);
+    pulse_sprite.SetOpacity(1);
+}
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);

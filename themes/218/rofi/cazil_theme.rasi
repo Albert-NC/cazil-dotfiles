@@ -1,0 +1,243 @@
+/* ==============================================================================
+   CAZIL ROFI THEME - Neón Cyberpunk (Cian + Rosa)
+   Ubicación: ~/.config/rofi/config.rasi
+   Estilo: Bordes rectos, minimalista, máximo contraste
+============================================================================== */
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Windows";
+    drun-display-format: "{name}";
+    window-format: "{w} · {c} · {t}";
+    
+    /* Comportamiento */
+    kb-row-up: "Up,Control+k";
+    kb-row-down: "Down,Control+j";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-remove-to-eol: "";
+    kb-mode-next: "Shift+Right,Control+Tab";
+    kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+    kb-row-left: "Control+Page_Up";
+    kb-row-right: "Control+Page_Down";
+}
+
+/* ==============================================================================
+   COLORES GLOBALES
+============================================================================== */
+* {
+    /* Paleta CAZIL Cyberpunk Unificada */
+    bg0:     #0d0d14;      /* Negro profundo */
+    bg1:     #1a1b2e;      /* Morado muy oscuro */
+    bg2:     #2d1f3d;      /* Morado oscuro (hover) */
+    fg0:     #e0e0e8;      /* Texto principal */
+    fg1:     #a0a0b0;      /* Texto secundario */
+    
+    /* Neón CAZIL (DYNAMIC COLORS) */
+    color1:  #00ffff;      /* Cyan neón (primario) */
+    color2:  #ff69b4;      /* Rosa neón (acento) */
+    red:     #ff4da6;      /* Alerta = Rosa */
+    
+    /* Aplicar colores */
+    background-color: transparent;
+    text-color: @fg0;
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+/* ==============================================================================
+   VENTANA PRINCIPAL
+============================================================================== */
+window {
+    transparency: "real";
+    background-color: rgba(13, 13, 20, 0.9); /* Transparencia futurista */
+    border: 3px solid;                       /* Borde más grueso para impacto */
+    border-color: @cyan;
+    border-radius: 0px;
+    padding: 0px;
+    width: 600px;
+}
+
+/* ==============================================================================
+   CONTENEDOR PRINCIPAL
+============================================================================== */
+mainbox {
+    background-color: @bg0;
+    children: [ inputbar, listview, message ];
+    spacing: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+/* ==============================================================================
+   BARRA DE BÚSQUEDA (Input)
+============================================================================== */
+inputbar {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 0px 0px 2px 0px solid;
+    border-color: @pink;             /* Borde inferior rosa */
+    border-radius: 0px;              /* Sin redondear */
+    padding: 12px 15px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @cyan;
+    font: "JetBrainsMono Nerd Font Bold 13";
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg0;
+    placeholder: "Buscar...";
+    placeholder-color: @fg1;
+}
+
+/* ==============================================================================
+   LISTA DE RESULTADOS
+============================================================================== */
+listview {
+    background-color: @bg0;
+    columns: 1;
+    lines: 8;                        /* Número de elementos visibles */
+    spacing: 0px;
+    padding: 8px 0px;
+    scrollbar: true;
+    border: 0px;
+}
+
+/* ==============================================================================
+   ELEMENTOS (Cada App)
+============================================================================== */
+element {
+    background-color: transparent;
+    text-color: @fg0;
+    padding: 10px 15px;
+    spacing: 10px;
+    border: 0px;
+    border-radius: 0px;              /* Sin redondear */
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color: @fg0;
+}
+
+element alternate.normal {
+    background-color: transparent;
+    text-color: @fg0;
+}
+
+element selected.normal {
+    background-color: @cyan;         /* Fondo cian al seleccionar */
+    text-color: @bg0;                /* Texto negro para contraste */
+    font: "JetBrainsMono Nerd Font Bold 12";
+}
+
+element selected.urgent {
+    background-color: @red;
+    text-color: @bg0;
+}
+
+element selected.active {
+    background-color: @pink;
+    text-color: @bg0;
+}
+
+/* Elementos urgentes (notificaciones) */
+element urgent.normal {
+    background-color: transparent;
+    text-color: @red;
+}
+
+element active.normal {
+    background-color: transparent;
+    text-color: @pink;
+}
+
+/* ==============================================================================
+   ICONOS
+============================================================================== */
+element-icon {
+    background-color: transparent;
+    size: 28px;                      /* Tamaño de iconos */
+    cursor: pointer;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    cursor: pointer;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* ==============================================================================
+   SCROLLBAR
+============================================================================== */
+scrollbar {
+    background-color: @bg1;
+    handle-color: @cyan;
+    border: 0px;
+    border-radius: 0px;              /* Sin redondear */
+    handle-width: 4px;
+    padding: 0px;
+    margin: 0px 0px 0px 5px;
+}
+
+/* ==============================================================================
+   MENSAJES (Errores, Info)
+============================================================================== */
+message {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 2px 0px 0px 0px solid;
+    border-color: @pink;
+    padding: 10px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color: @fg0;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+error-message {
+    background-color: @bg0;
+    text-color: @red;
+    border: 2px solid;
+    border-color: @red;
+    border-radius: 0px;
+    padding: 15px;
+}
+
+/* ==============================================================================
+   MODO DE CAMBIO (drun, run, window)
+============================================================================== */
+mode-switcher {
+    background-color: @bg1;
+    text-color: @fg0;
+    border: 2px 0px 0px 0px solid;
+    border-color: @cyan;
+    spacing: 0px;
+}
+
+button {
+    background-color: transparent;
+    text-color: @fg1;
+    padding: 10px;
+    border: 0px;
+    border-radius: 0px;
+}
+
+button selected {
+    background-color: @cyan;
+    text-color: @bg0;
+    font: "JetBrainsMono Nerd Font Bold 12";
+}

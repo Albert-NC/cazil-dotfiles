@@ -1,0 +1,110 @@
+format = """
+[ ](bg:#fec249 fg:#000000)\
+$os\
+$username\
+[](bg:#ff5757 fg:#fec249)\
+$directory\
+[](fg:#ff5757 bg:#57FFFF)\
+$git_branch\
+$git_status\
+[](fg:#57FFFF bg:#ff66c4)\
+$time\
+[](fg:#ff66c4 bg:#5ce1e6)\
+$cmd_duration\
+[  ](fg:#5ce1e6)\
+$line_break\
+$character 
+"""
+# A new line at the beginning
+add_newline = true
+
+[character]
+success_symbol = "[└─❯❯](fg:#fec249 bg:#0d0d14 bold)"
+error_symbol   = "[└─❯❯](fg:#fec249 bg:#ff5757 bold)"
+vimcmd_symbol  = "[└─❯❯](fg:#fec249 bg:#57FFFF bold)"
+
+[username]
+show_always = true
+style_user = "bg:#fec249 fg:#000000"
+style_root = "bg:#00b6ba"
+format = '[$user ]($style)'
+disabled = false
+
+# Display OS
+[os]
+style = "bg:#fec249 fg:#000000"
+disabled = false # Disabled by default
+
+# Insert a symbol of your OS to the prompt. This is all symbols added.
+[os.symbols]
+AlmaLinux = " "
+Alpine = " "
+Android = " "
+Arch = "󰣇 "
+Artix = " "
+CachyOS = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = " "
+Gentoo = " "
+Kali = " "
+Linux = " "
+Macos = " "
+Manjaro = " "
+Mint = "󰣭 "
+NetBSD = "🚩 "
+NixOS = "󱄅 "
+Nobara = " "
+OpenBSD = " "
+openSUSE = " "
+OracleLinux = "󰫼 "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+Solus = " "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
+Windows = " "
+
+[directory]
+style = "bg:#ff5757 fg:#000000"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:#57FFFF fg:#000000"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#57FFFF fg:#000000"
+format = '[$all_status$ahead_behind ]($style)'
+
+
+[time]
+disabled = false
+time_format = "%b %d, %I:%M %P" # Hour:Minute Format
+style = "bg:#ff66c4 fg:#000000"
+format = "[ $time ]($style)"
+
+[cmd_duration]
+disabled = false
+min_time = 2000
+style = 'bg:#5ce1e6 fg:#000000'
+format = '[ Took $duration!]($style)'
+

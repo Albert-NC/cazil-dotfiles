@@ -1,0 +1,98 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "width": 0,
+    "spacing": 3,
+    "exclusive": false,
+    "modules-left": [
+        "hyprland/workspaces#pacman"
+    ],
+    "modules-center": [
+        "clock",
+        "mpris"
+    ],
+    "modules-right": [
+        "battery#cazil_elegant",
+        "network",
+        "bluetooth",
+        "tray"
+    ],
+    "hyprland/workspaces#pacman": {
+        "format": " {icon} ",
+        "all-outputs": true,
+        "active-only": false,
+        "on-click": "activate",
+        "format-icons": {
+            "active": "󰊯",
+            "default": "󰊠",
+            "empty": ""
+        },
+        "persistent-workspaces": {}
+    },
+    "clock": {
+        "format": "🕑 {:%H:%M} | 📅 {:%d/%m}",
+        "tooltip-format": "<big>{:%Y-%m-%d}</big>\n{calendar}"
+    },
+    "network": {
+        "format-wifi": " Identity Protected",
+        "format-ethernet": "🔗 Identity Protected",
+        "format-disconnected": "⚠️ Not Connect",
+        "on-click": "bash $HOME/.local/bin/toggle-radio wifi on",
+        "on-click-right": "bash $HOME/.local/bin/toggle-radio wifi off",
+        "tooltip-format": "🔒 Network Masked\nTraffic via Secure Tunnel",
+        "tooltip-format-wifi": " {essid} ({signaldBm}dBm)\nIP: Hidden",
+        "tooltip-format-ethernet": "🔗 {ifname}\nIP: Hidden",
+        "tooltip-format-disconnected": "Desconectado"
+    },
+    "mpris": {
+        "format": "{player_icon} {artist} - {title}",
+        "format-paused": "{status_icon} <i>{artist} - {title}</i>",
+        "player-icons": {
+            "default": "▶",
+            "mpv": "🎵",
+            "vlc": "󰕼",
+            "spotify": ""
+        },
+        "status-icons": {
+            "paused": "⏸"
+        },
+        "max-length": 40
+    },
+    "bluetooth": {
+        "format": " {num_devices}",
+        "format-disabled": " Off",
+        "format-connected": " {num_devices}",
+        "on-click": "bash $HOME/.local/bin/toggle-radio bt on",
+        "on-click-right": "bash $HOME/.local/bin/toggle-radio bt off",
+        "interval": 5
+    },
+    "pulseaudio": {
+        "format": "♪ {volume}%",
+        "format-muted": "🔇 Muted"
+    },
+    "pulseaudio#microphone": {
+        "format": "🎤 {volume}%",
+        "format-source-muted": "🔇 Muted"
+    },
+    "battery#cazil_elegant": {
+        "states": {
+            "warning": 25,
+            "critical": 10
+        },
+        "format": "{icon} {capacity}% ({time})",
+        "format-charging": "⚡ {capacity}%",
+        "format-full": "Full: {icon}",
+        "format-icons": [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10
+    }
+}

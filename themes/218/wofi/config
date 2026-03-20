@@ -1,0 +1,36 @@
+# ==============================================================================
+# CAZIL SYSTEM - WOFI CONFIG
+# ==============================================================================
+
+# Mostrar aplicaciones en modo drun (lanzador de apps)
+show=drun
+
+# Mostrar íconos
+allow_images=true
+
+# Insensible a mayúsculas
+insensitive=true
+
+# Número de columnas
+columns=2
+
+# Altura de cada item
+height=400
+
+# Ancho
+width=800
+
+# Prompt
+prompt=Buscar...
+
+# Terminal para ejecutar comandos
+term=kitty
+
+# No mostrar acciones
+no_actions=true
+
+# CSS personalizado
+stylesheet=/home/$USER/.config/wofi/style.css
+
+# Cache para apps frecuentes
+allow_markup=true

@@ -1,0 +1,12 @@
+[Unit]
+Description=Set Battery Charge Threshold (80%%)
+After=multi-user.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/battery-limit 80
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

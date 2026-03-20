@@ -1,0 +1,53 @@
+/* ==============================================================================
+   CAZIL SYSTEM - WOFI CONFIGURATION
+   Lanzador de aplicaciones para Wayland con estilo cyberpunk
+============================================================================== */
+
+window {
+    width: 40%;
+    height: 50%;
+    border: 2px solid #00d9ff;
+    background-color: rgba(13, 13, 20, 0.95);
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 14px;
+}
+
+#input {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #ff4da6;
+    background-color: rgba(26, 27, 46, 0.9);
+    color: #00d9ff;
+    font-size: 16px;
+}
+
+#inner-box {
+    margin: 5px;
+    padding: 10px;
+    background-color: transparent;
+}
+
+#outer-box {
+    margin: 5px;
+    padding: 10px;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 0px;
+}
+
+#text {
+    margin: 5px;
+    color: #e0e0e8;
+}
+
+#entry:selected {
+    background-color: rgba(0, 217, 255, 0.2);
+    border-left: 3px solid #00d9ff;
+    color: #00d9ff;
+}
+
+#entry:hover {
+    background-color: rgba(255, 77, 166, 0.1);
+}

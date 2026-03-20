@@ -1,0 +1,90 @@
+# ==============================================================================
+# CAZIL SYSTEM - CONFIGURACIÓN DE MAKO (NOTIFICACIONES)
+# Estilo: Minimalista cyberpunk — colores sincronizados con tema activo
+# IMPORTANTE: Los colores de acento son actualizados por tema.sh
+# ==============================================================================
+
+# --------------------------------------------------------------------------
+# ASPECTO GENERAL
+# --------------------------------------------------------------------------
+font=JetBrainsMono Nerd Font 10
+background-color=#0d0d14e8
+text-color=#ffffff
+border-color=#00ffff
+border-size=2
+border-radius=0
+padding=10 14
+margin=8
+
+# --------------------------------------------------------------------------
+# POSICIÓN Y DIMENSIONES
+# --------------------------------------------------------------------------
+width=300
+max-icon-size=0
+anchor=top-right
+default-timeout=4000
+
+# --------------------------------------------------------------------------
+# ESTILOS POR URGENCIA
+# --------------------------------------------------------------------------
+
+# Notificaciones normales — color C2 (acento)
+[urgency=normal]
+background-color=#0d0d14e8
+text-color=#e0e0e0
+border-color=#00ffff
+
+# Notificaciones críticas — color C1 (complementario)
+[urgency=critical]
+background-color=#0d0d14f0
+text-color=#ffffff
+border-color=#ff69b4
+default-timeout=0
+
+# Notificaciones bajas — muy discretas
+[urgency=low]
+background-color=#0d0d14c0
+text-color=#888899
+border-color=#2d1f3d
+default-timeout=2500
+
+# --------------------------------------------------------------------------
+# AGRUPACIÓN
+# --------------------------------------------------------------------------
+group-by=app-name
+max-visible=3
+
+# --------------------------------------------------------------------------
+# INTERACCIÓN
+# --------------------------------------------------------------------------
+on-button-left=dismiss
+on-button-middle=none
+on-button-right=dismiss-all
+on-touch=dismiss
+
+# --------------------------------------------------------------------------
+# EFECTOS
+# --------------------------------------------------------------------------
+layer=overlay
+markup=1
+actions=1
+history=1
+max-history=20
+
+# --------------------------------------------------------------------------
+# APLICACIONES ESPECÍFICAS
+# --------------------------------------------------------------------------
+
+# Batería crítica
+[app-name="battery"]
+background-color=#1a0a0ae8
+border-color=#ff0050
+text-color=#ff69b4
+default-timeout=0
+
+# Volumen/Audio
+[app-name="volume"]
+background-color=#0d0d14e8
+border-color=#00ffff
+text-color=#e0e0e0
+default-timeout=1800

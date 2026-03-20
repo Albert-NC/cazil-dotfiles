@@ -1,0 +1,68 @@
+# ==============================================================================
+# CAZIL SYSTEM GRUB - Cyberpunk Theme
+# Fuente: Cazil-pixel-32.pf2 (debe estar en la misma carpeta)
+# Resolución de referencia: 1920x1080
+# ==============================================================================
+
+desktop-image: "7.png"
+desktop-color: "#0d0d14"
+desktop-image-scale-method: "stretch"
+
+# Fuente — el nombre DEBE coincidir con el registrado por grub-mkfont
+# Si usas grub-mkfont Cazil-pixel-32.pf2 -o out.pf2 -n "Cazil pixel" el nombre es "Cazil pixel"
+terminal-font: "Cazil pixel 32"
+message-color: "#00d9ff"
+terminal-box: "terminal_box_*.png"
+
+# --- MENÚ DE ARRANQUE ---
++ boot_menu {
+    left = 1100
+    top = 456
+    width = 700
+    height = 200
+    item_font = "Cazil pixel 32"
+    item_color = "#00d9ff"
+    selected_item_color = "#00d9ff"
+    selected_item_pixmap_style = "select_*.png"
+    icon_width = 32
+    icon_height = 32
+    item_height = 46
+    item_padding = 8
+    item_spacing = 15
+}
+
+# --- LABEL "Iniciando sistema..." ---
++ label {
+    text = "Iniciando sistema..."
+    font = "Cazil pixel 32"
+    color = "#00d9ff"
+    align = "center"
+    left = 1100
+    top = 670
+    width = 700
+}
+
+# --- BARRA DE PROGRESO ---
++ progress_bar {
+    id = "__timeout__"
+    left = 1120
+    top = 726
+    width = 660
+    height = 30
+    bg_color = "#1a1b2e"
+    fg_color = "#ff4da6"
+    border_color = "#00d9ff"
+}
+
+# --- CONTADOR EN LA BARRA ---
++ label {
+    text = "Sincronizando en %d..."
+    id = "__timeout__"
+    font = "Cazil pixel 32"
+    color = "#00d9ff"
+    align = "center"
+    left = 1120
+    top = 726
+    width = 660
+    height = 30
+}

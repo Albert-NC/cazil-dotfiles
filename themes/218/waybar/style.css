@@ -1,0 +1,134 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+/* ----------------------------------------------------- */
+/* ESTÉTICA CAZIL CYBERPUNK (Morado/Cyan/Rosa Neón)      */
+/* ----------------------------------------------------- */
+window#waybar {
+    background: rgba(13, 13, 20, 0.95);
+    /* Negro profundo */
+    color: #ff69b4;
+    border: 2px solid #00ffff;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    /* Cyan neón */
+    margin-top: -28px;
+    margin-left: 1105px;
+    /* Ubicación en la parte derecha (1920 - 800 - 15) */
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+window#waybar:hover {
+    margin-top: 0px;
+    /* Mostrar barra al pasar el ratón */
+}
+
+/* ----------------------------------------------------- */
+/* ESTILO DE MÓDULOS Y WORKSPACES                         */
+/* ----------------------------------------------------- */
+#workspaces button {
+    padding: 0 10px;
+    background: transparent;
+    color: #a0a0b0;
+    border-bottom: 3px solid transparent;
+}
+
+/* Workspace ACTIVO - Color 1 */
+#workspaces button.active {
+    color: #ff69b4;
+    border-bottom: 3px solid #00ffff;
+}
+
+/* Hover - Rosa neón */
+#workspaces button:hover {
+    box-shadow: inherit;
+    text-shadow: inherit;
+    color: #ff4da6;
+    border-bottom: 3px solid #ff4da6;
+}
+
+#cpu,
+#memory,
+#clock,
+#network,
+#custom-sound,
+#custom-ssh,
+#pulseaudio,
+#battery,
+#bluetooth,
+#tray {
+    padding: 0 10px;
+    margin: 0 2px;
+    color: #ff69b4;
+}
+
+#clock {
+    color: #ff69b4;
+}
+
+#network {
+    color: #ff69b4;
+}
+
+#custom-sound {
+    color: #ff69b4;
+}
+
+#custom-gpu {
+    color: #ff69b4;
+}
+
+#custom-gpu.idle {
+    color: #505050;
+}
+
+#battery {
+    color: #ff69b4;
+}
+
+#bluetooth {
+    color: #ff69b4;
+}
+
+#custom-ssh {
+    color: #ff69b4;
+    margin-left: -10px;
+}
+
+#network.disconnected {
+    color: #ff0055;
+}
+
+#battery.critical {
+    color: #ff0055;
+    font-weight: bold;
+}
+
+#battery.warning {
+    color: #ffaa00;
+}
+/* Círculo de Seguridad Adaptativo - Color 2 */
+#custom-security {
+    background: #00ffff;
+    color: #000000;
+    border-radius: 50%;
+    margin: 10px 6px;
+    padding: 0;
+    min-width: 10px;
+    min-height: 10px;
+    font-size: 10px;
+}
+
+#custom-security.warning {
+    background: #ffaa00;
+}
+
+#custom-security.danger {
+    background: #ff0055;
+    animation: blink 0.5s linear infinite;
+}

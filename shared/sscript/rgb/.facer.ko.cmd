@@ -1,0 +1,1 @@
+savedcmd_facer.ko := ld -r -m elf_x86_64 -z noexecstack --no-warn-rwx-segments --build-id=sha1  -T /usr/src/linux-headers-6.17.9-76061709-generic/scripts/module.lds -o facer.ko facer.o facer.mod.o .module-common.o

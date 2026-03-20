@@ -1,0 +1,37 @@
+/* 
+   SwayOSD Custom Style 
+   Theme-agnostic base with dynamic colors 
+*/
+
+window {
+    background: rgba(0, 0, 0, 0); /* Transparent window */
+}
+
+#osd {
+    background: rgba(13, 13, 20, 0.9); /* Dark background */
+    border: 8px solid #000000;         /* Black chunky outer border */
+    border-radius: 12px;
+    padding: 12px;
+}
+
+#progressbar {
+    background: rgba(40, 40, 40, 0.8); /* Dark gray track */
+    border: 1px solid #111111;
+    border-radius: 6px;
+    min-height: 4px; /* Thin adaptive color part */
+}
+
+/* The color of this progress bar is updated by tema.sh */
+#progressbar progress {
+    background: #00ffff; /* Default Cyan */
+    border-radius: 4px;
+    border: 1px solid #000000; /* Black inner border for the bar itself */
+}
+
+#label {
+    color: #ffffff;
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
