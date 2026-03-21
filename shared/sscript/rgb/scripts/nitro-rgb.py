@@ -12,23 +12,38 @@ import argparse
 import struct
 import sys
 
-STATIC_DEV = "/dev/acer-gkbbl-static"
+import os
+
+# Lista de posibles dispositivos de comunicación con el driver
+DEVICES = [
+    "/dev/acer-gkbbl-static",  # Facer original
+    "/dev/acer-gkbbl-0",       # New Jafar module (character device)
+]
 NUM_ZONES = 4
 
+def get_device():
+    for dev in DEVICES:
+        if os.path.exists(dev):
+            return dev
+    return None
 
 def set_zone(zone: int, r: int, g: int, b: int) -> None:
     """Escribe un color a una zona del teclado."""
+    device = get_device()
+    if not device:
+        print(f"[ERROR] No se encontró ningún dispositivo compatible {DEVICES}.", file=sys.stderr)
+        print("       ¿Está cargado el módulo del kernel?", file=sys.stderr)
+        sys.exit(1)
+
     # El driver espera exactamente 4 bytes: [zone, R, G, B]
     payload = struct.pack("BBBB", zone, r, g, b)
     try:
-        with open(STATIC_DEV, "wb") as dev:
+        # device ya está validado arriba, pero usamos una variable local para el type checker
+        active_dev = str(device) 
+        with open(active_dev, "wb") as dev:
             dev.write(payload)
     except PermissionError:
-        print(f"[ERROR] Permiso denegado. Ejecuta con sudo.", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError:
-        print(f"[ERROR] {STATIC_DEV} no encontrado. ¿Está cargado el módulo?", file=sys.stderr)
-        print("       Prueba: sudo insmod facer.ko", file=sys.stderr)
+        print(f"[ERROR] Permiso denegado al acceder a {device}. Ejecuta con sudo.", file=sys.stderr)
         sys.exit(1)
 
 

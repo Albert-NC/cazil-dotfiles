@@ -214,3 +214,61 @@ source "$HOME/.config/ctf-stats/ctf.conf" 2>/dev/null
 
 # --- 12. INICIALIZACIÓN DE HERRAMIENTAS ---
 eval "$(zoxide init zsh)"
+
+# --- 13. COMPLETADO INSENSIBLE A MAYÚSCULAS ---
+# Permite que 'cd descargas' complete a 'Downloads' o 'Descargas'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{A-Z}={a-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# --- 13. COMMAND NOT FOUND HANDLER (PROMPT TO INSTALL) ---
+# Colores para el prompt (fallback si no están definidos)
+[ -z "$NC" ] && NC='\033[0m'
+[ -z "$CYAN" ] && CYAN='\033[0;36m'
+[ -z "$YELLOW" ] && YELLOW='\033[1;33m'
+[ -z "$GREEN" ] && GREEN='\033[0;32m'
+
+command_not_found_handler() {
+    local cmd="$1"
+    local pkgs=()
+    
+    # ── Buscar paquetes que contienen el comando ──────────────────────
+    if command -v pkgfile &>/dev/null; then
+        # Arch Linux con pkgfile (rápido)
+        pkgs=($(pkgfile -b "$cmd" 2>/dev/null))
+    elif [[ -f /usr/lib/command-not-found ]] || command -v command-not-found &>/dev/null; then
+        # Debian/Ubuntu (usar su lógica interna)
+        if [[ -x /usr/lib/command-not-found ]]; then
+           /usr/lib/command-not-found -- "$cmd"
+           return $?
+        fi
+    elif command -v pacman &>/dev/null; then
+        # Arch Linux fallback (pacman -F)
+        pkgs=($(pacman -Fq "/usr/bin/$cmd" 2>/dev/null | cut -d'/' -f2))
+    fi
+
+    [[ ${#pkgs[@]} -eq 0 ]] && {
+        echo -e "zsh: command not found: $cmd"
+        return 127
+    }
+
+    # ── Preguntar al usuario ──────────────────────────────────────────
+    echo -e "${YELLOW}ℹ El comando '${cmd}' no está instalado.${NC}"
+    echo -ne "${CYAN}¿Deseas instalar el paquete '${pkgs[1]}'? (s/n): ${NC}"
+    read -r response
+    
+    if [[ "$response" =~ ^[Ss]$ ]]; then
+        if command -v pacman &>/dev/null; then
+            sudo pacman -S "${pkgs[1]}"
+        elif command -v apt &>/dev/null; then
+            sudo apt update && sudo apt install "${pkgs[1]}"
+        fi
+        
+        if [[ $? -eq 0 ]]; then
+            echo -e "${GREEN}[✓] Instalado correctamente. Ejecutando de nuevo...${NC}\n"
+            # Recargar el hash de comandos para que ZSH encuentre el nuevo ejecutable
+            rehash
+            "$@"
+        fi
+    else
+        return 127
+    fi
+}

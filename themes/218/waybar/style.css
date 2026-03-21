@@ -80,11 +80,15 @@ window#waybar:hover {
 }
 
 #custom-gpu {
-    color: #ff69b4;
+    color: #00ffff;
 }
 
 #custom-gpu.idle {
     color: #505050;
+}
+
+#backlight {
+    color: #ff69b4;
 }
 
 #battery {

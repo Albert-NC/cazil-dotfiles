@@ -4,26 +4,7 @@
    Estilo: Bordes rectos, minimalista, máximo contraste
 ============================================================================== */
 
-configuration {
-    modi: "drun,run,window";
-    show-icons: true;
-    icon-theme: "Papirus-Dark";
-    display-drun: " Apps";
-    display-run: " Run";
-    display-window: " Windows";
-    drun-display-format: "{name}";
-    window-format: "{w} · {c} · {t}";
-    
-    /* Comportamiento */
-    kb-row-up: "Up,Control+k";
-    kb-row-down: "Down,Control+j";
-    kb-accept-entry: "Return,KP_Enter";
-    kb-remove-to-eol: "";
-    kb-mode-next: "Shift+Right,Control+Tab";
-    kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
-    kb-row-left: "Control+Page_Up";
-    kb-row-right: "Control+Page_Down";
-}
+/* Configuration removed from theme file to avoid conflicts with config.rasi */
 
 /* ==============================================================================
    COLORES GLOBALES
@@ -36,9 +17,9 @@ configuration {
     fg0:     #e0e0e8;      /* Texto principal */
     fg1:     #a0a0b0;      /* Texto secundario */
     
-    /* Neón CAZIL (DYNAMIC COLORS) */
-    color1:  #00ffff;      /* Cyan neón (primario) */
-    color2:  #ff69b4;      /* Rosa neón (acento) */
+    /* Neón CAZIL (Names matched with rest of file) */
+    cyan:    #00ffff;      /* Cyan neón (primario) */
+    pink:    #ff69b4;      /* Rosa neón (acento) */
     red:     #ff4da6;      /* Alerta = Rosa */
     
     /* Aplicar colores */

@@ -1,24 +1,22 @@
 configuration {
-    /* Define el tipo de menú (Drun = Lista de Apps) */
-    modi: "drun";
-    
-    /* CRÍTICO: Carga el tema personalizado */
-    theme: "cazil_theme";
-/* Configuración para Rofi-Wayland */
-window {
-    location: center;
-    anchor: center;
-    width: 600px;
-}
-
-    /* Comportamiento y tamaño de la ventana */
+    modi: "drun,run,window";
     show-icons: true;
-    location: center;
-    anchor: center;
-    width: 40%; 
-    lines: 10;
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Windows";
+    drun-display-format: "{name}";
+    window-format: "{w} · {c} · {t}";
     
-    /* Terminal por defecto */
+    /* Terminal y ejecución */
     terminal: "kitty"; 
     run-command: "zsh -c '{cmd}'";
+
+    /* Teclado (Vim-style) */
+    kb-row-up: "Up,Control+k";
+    kb-row-down: "Down,Control+j";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-remove-to-eol: "";
+    kb-mode-next: "Shift+Right,Control+Tab";
 }
+
+@theme "cazil_theme"

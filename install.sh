@@ -122,12 +122,14 @@ install_yazi_deb() {
 # ==============================================================================
 # PARSE ARGUMENTOS
 # ==============================================================================
+MODULE_CHOICE=""
 for arg in "$@"; do
     case "$arg" in
         --auto)           AUTO_INSTALL=true ;;
         --dotfiles-only)  DOTFILES_ONLY=true ;;
         --arch)           DISTRO="arch" ;;
         --debian)         DISTRO="debian" ;;
+        --module=*)       MODULE_CHOICE="${arg#--module=}" ;;
     esac
 done
 
@@ -511,11 +513,18 @@ EOF
         # ── Display Manager (Ly) ──────────────────────────────────────────────────
         ask "¿Instalar Ly (display manager con efecto Matrix)?" && {
             pac ly 2>/dev/null || aur ly
-            for dm in gdm sddm lightdm; do sudo systemctl disable "$dm" 2>/dev/null || true; done
+            # Deshabilitar otros posibles gestores de sesión para evitar conflictos
+            for dm in gdm sddm lightdm lxdm slim; do
+                sudo systemctl disable "$dm" 2>/dev/null || true
+            done
+            sudo systemctl disable display-manager.service 2>/dev/null || true
+            
             sudo mkdir -p /etc/ly
             [ -f "$SHARED_DIR/config/ly/config.ini" ] && \
                 sudo cp "$SHARED_DIR/config/ly/config.ini" /etc/ly/config.ini
+            
             sudo systemctl enable ly.service || true
+            log "${GREEN}  [✓]   Ly habilitado como gestor de sesión por defecto.${NC}"
         }
 
         # ── NVIDIA ────────────────────────────────────────────────────────────────
@@ -738,9 +747,15 @@ else
             pac ufw usbguard rkhunter macchanger
             sudo systemctl enable --now ufw || true
         }
-        ask "¿Instalar Ly (Display Manager)?"    && {
+        ask "¿Instalar Ly (Display Manager)?" && {
             pac ly 2>/dev/null || log "${YELLOW}[!] Ly no disponible en repos de Debian. Instala manualmente.${NC}"
+            # Deshabilitar otros gestores para evitar conflictos
+            for dm in gdm sddm lightdm lxdm slim; do
+                sudo systemctl disable "$dm" 2>/dev/null || true
+            done
+            sudo systemctl disable display-manager.service 2>/dev/null || true
             sudo systemctl enable ly.service 2>/dev/null || true
+            log "${GREEN}  [✓]   Ly habilitado como gestor de sesión.${NC}"
         }
 
         # Instalar todos los paquetes acumulados de una vez
@@ -786,12 +801,20 @@ deploy_firefox() {
         if [ -z "$FF_PROF_DIR" ]; then
             FF_PROF_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default" | head -n 1)
         fi
-
         if [ -n "$FF_PROF_DIR" ]; then
             log "${CYAN}  [*]   Descargando última versión de Arkenfox user.js...${NC}"
             if curl -sSL "https://raw.githubusercontent.com/arkenfox/user.js/master/user.js" -o "$FF_PROF_DIR/user.js"; then
+                # Appending custom overrides (Maintain sessions/cookies)
+                cat >> "$FF_PROF_DIR/user.js" << 'EOF'
+
+// ── CAZIL OVERRIDES (Mantener sesiones y cookies) ────────────────────────────
+user_pref("privacy.sanitize.sanitizeOnShutdown", false);
+user_pref("privacy.clearOnShutdown.cookies", false);
+user_pref("privacy.clearOnShutdown.sessions", false);
+user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
+EOF
                 [ "$EUID" -eq 0 ] && [ -n "$REAL_USER" ] && chown "$REAL_USER:$REAL_USER" "$FF_PROF_DIR/user.js"
-                log "${GREEN}  [✓]   user.js (Arkenfox) descargado y aplicado al perfil: $(basename "$FF_PROF_DIR")${NC}"
+                log "${GREEN}  [✓]   user.js (Arkenfox + Cazil Overrides) aplicado al perfil: $(basename "$FF_PROF_DIR")${NC}"
             else
                 log "${RED}  [!]   Error al descargar user.js de GitHub.${NC}"
             fi
@@ -811,15 +834,59 @@ deploy_firefox() {
 # MODULOS DE INSTALACIÓN INDIVIDUAL
 # ==============================================================================
 install_module_kitty() {
-    log "${CYAN}[*] Instalando Kitty Terminal...${NC}"
+    log "${CYAN}[*] Instalando Ecosistema Kitty (Terminal + ZSH + Fastfetch + Starship)...${NC}"
+    
+    # ── 1. Instalación de Paquetes ──────────────────────────────────────
     if [ "$DISTRO" = "arch" ]; then
-        pac kitty
+        pac kitty zsh starship fastfetch fzf zoxide
     else
-        sudo apt-get install -y kitty
+        # Fastfetch PPA para Debian
+        log "${CYAN}[*] Añadiendo PPA de Fastfetch para Debian...${NC}"
+        sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+        sudo apt-get update
+        sudo apt-get install -y kitty zsh fastfetch fzf zoxide
+        
+        # Starship (usar script oficial en Debian para mayor compatibilidad)
+        if ! command_exists starship; then
+            log "${CYAN}[*] Instalando Starship vía script oficial...${NC}"
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
     fi
-    log "${CYAN}[*] Desplegando configuraciones de Kitty...${NC}"
+
+    # ── 2. Cambiar shell a ZSH ──────────────────────────────────────────
+    if [ -n "$REAL_USER" ]; then
+        log "${CYAN}[*] Activando ZSH para $REAL_USER...${NC}"
+        sudo chsh -s /usr/bin/zsh "$REAL_USER" 2>/dev/null || true
+    fi
+
+    # ── 3. Desplegar Configuraciones y Assets ───────────────────────────
+    log "${CYAN}[*] Desplegando configuraciones y assets...${NC}"
+    
+    # Kitty
     _put "$THEME_DIR/kitty" "$HOME/.config/kitty"
-    log "${GREEN}[✓] Módulo Kitty instalado.${NC}"
+    
+    # Fastfetch (Config + Logo Asset)
+    mkdir -p "$HOME/.config/fastfetch/assets"
+    _put "$THEME_DIR/fastfetch" "$HOME/.config/fastfetch"
+    
+    local LOGO_SRC="$SHARED_DIR/assets/logos/cazil_logo_transparente.png"
+    if [ -f "$LOGO_SRC" ]; then
+        cp "$LOGO_SRC" "$HOME/.config/fastfetch/assets/cazil_logo_transparente.png"
+        log "${GREEN}  [✓]   Logo Fastfetch desplegado${NC}"
+    fi
+
+    # Starship
+    if [ -f "$THEME_DIR/starship/starship.toml" ]; then
+        mkdir -p "$HOME/.config"
+        cp "$THEME_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+    fi
+
+    # .zshrc
+    if [ -f "$SHARED_DIR/config/zsh/.zshrc" ]; then
+        cp "$SHARED_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
+    fi
+
+    log "${GREEN}[✓] Ecosistema Kitty instalado y configurado.${NC}"
 }
 
 install_module_firefox() {
@@ -834,31 +901,274 @@ install_module_firefox() {
 }
 
 install_module_work_env() {
-    log "${CYAN}[*] Instalando Entorno de Trabajo (Docker, QEMU/KVM)...${NC}"
+    log "${CYAN}[*] Instalando Entorno de Virtualización (QEMU/KVM)...${NC}"
     if [ "$DISTRO" = "arch" ]; then
-        pac docker docker-compose
         pac qemu-full virt-manager virt-viewer dnsmasq vde2 bridge-utils openbsd-netcat edk2-ovmf
     else
-        sudo apt-get install -y docker.io docker-compose
         sudo apt-get install -y qemu-system libvirt-daemon-system libvirt-clients bridge-utils virt-manager
     fi
 
-    sudo systemctl enable --now docker
-    sudo usermod -aG docker "$REAL_USER"
     sudo systemctl enable --now libvirtd
     sudo usermod -aG libvirt "$REAL_USER"
     sudo usermod -aG kvm "$REAL_USER" 2>/dev/null || true
     
-    log "${GREEN}[✓] Serviciós habilitados y usuario añadido a grupos (docker, libvirt).${NC}"
+    # ── Kali Linux ISO Download ──────────────────────────────────────
+    log "${CYAN}[*] Configurando repositorio de ISOs en ~/proyectos/qemu/isos...${NC}"
+    local ISO_DIR="$HOME/proyectos/qemu/isos"
+    mkdir -p "$ISO_DIR"
+    
+    if ask "¿Deseas descargar la última ISO de Kali Linux ahora?"; then
+        log "${CYAN}[*] Buscando la última versión de Kali Linux...${NC}"
+        local KALI_VER; KALI_VER=$(curl -sL https://cdimage.kali.org/ | grep -oP 'kali-[0-9]+\.[0-9]+' | sort -V | tail -1)
+        if [ -n "$KALI_VER" ]; then
+            local KALI_URL="https://cdimage.kali.org/${KALI_VER}/kali-linux-${KALI_VER}-installer-amd64.iso"
+            log "${CYAN}[*] Descargando Kali Linux ${KALI_VER} (Installer amd64)...${NC}"
+            curl -L -C - --progress-bar "$KALI_URL" -o "$ISO_DIR/kali-linux-latest.iso"
+            [ "$EUID" -eq 0 ] && [ -n "$REAL_USER" ] && chown "$REAL_USER:$REAL_USER" "$ISO_DIR/kali-linux-latest.iso"
+            log "${GREEN}  [✓]   ISO guardada en: $ISO_DIR/kali-linux-latest.iso${NC}"
+        else
+            log "${YELLOW}  [!] No se pudo obtener la versión de Kali — saltando descarga${NC}"
+        fi
+    fi
+
+    log "${GREEN}[✓] Servicios habilitados y usuario añadido a grupos (libvirt, kvm).${NC}"
         log "${YELLOW}[!] Reinicia tu sesión para aplicar los permisos de grupo.${NC}"
-    log "${GREEN}[✓] Módulo Entorno de Trabajo instalado.${NC}"
+    log "${GREEN}[✓] Módulo Entorno de Virtualización instalado.${NC}"
+}
+
+setup_plymouth_cazil() {
+    log "${CYAN}[*] Configurando Plymouth (Tema: cazil-cyber)...${NC}"
+    if [ ! -d "$SHARED_DIR/config/plymouth/themes" ]; then
+        log "${RED}  [!]   No se encontró la carpeta del tema Plymouth en $SHARED_DIR${NC}"
+        return 1
+    fi
+
+    local ply_dest="/usr/share/plymouth/themes/cazil-cyber"
+    sudo mkdir -p "$ply_dest"
+    sudo cp -r "$SHARED_DIR/config/plymouth/themes"/. "$ply_dest/"
+    [ -f "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" ] && \
+        sudo cp "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" "$ply_dest/"
+
+    # ── MKINITCPIO Setup (Arch Only) ────────────────────────────────────
+    if [ "$DISTRO" = "arch" ] && [ -f /etc/mkinitcpio.conf ]; then
+        if ! grep -q "plymouth" /etc/mkinitcpio.conf; then
+            sudo sed -i 's/udev/udev plymouth/' /etc/mkinitcpio.conf
+            log "${GREEN}  [✓]   mkinitcpio: hook 'plymouth' añadido después de 'udev'${NC}"
+        fi
+    fi
+
+    # ── GRUB Setup: quiet splash ───────────────────────────────────────
+    if [ -f /etc/default/grub ]; then
+        local changed=false
+        if ! grep -q "quiet" /etc/default/grub; then
+            sudo sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT="[^"]*\)"/\1 quiet"/' /etc/default/grub
+            changed=true
+        fi
+        if ! grep -q "splash" /etc/default/grub; then
+            sudo sed -i 's/\(GRUB_CMDLINE_LINUX_DEFAULT="[^"]*\)"/\1 splash"/' /etc/default/grub
+            changed=true
+        fi
+        if [ "$changed" = true ]; then
+            log "${GREEN}  [✓]   GRUB: kernel parameters 'quiet splash' añadidos${NC}"
+            sudo grub-mkconfig -o /boot/grub/grub.cfg 2>/dev/null || true
+        fi
+    fi
+
+    # ── Activar el tema ─────────────────────────────────────────────
+    if command_exists plymouth-set-default-theme; then
+        sudo plymouth-set-default-theme -R cazil-cyber 2>/dev/null || true
+    elif command_exists update-alternatives; then
+        sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth \
+            default.plymouth "$ply_dest/cazil-cyber.plymouth" 100 2>/dev/null || true
+        sudo update-alternatives --set default.plymouth "$ply_dest/cazil-cyber.plymouth" 2>/dev/null || true
+    fi
+
+    # ── Regenerar initramfs ────────────────────────────────────────
+    if [ "$DISTRO" = "arch" ]; then
+        sudo mkinitcpio -P 2>/dev/null || true
+    else
+        sudo update-initramfs -u 2>/dev/null || true
+    fi
+
+    log "${GREEN}  [✓]   Plymouth CAZIL instalado y activado con integración de sistema.${NC}"
 }
 
 install_module_system() {
-    log "${CYAN}[*] Instalando Sistema Base (Hyprland + Ecosystem)...${NC}"
-    install_pkgs
+    log "${CYAN}[*] Instalando Sistema Base (Hyprland + Ecosystem + ZSH) - MODO PERFECTO...${NC}"
+    
+    # ── Core Packages (Sin preguntas) ──────────────────────────────────
+    if [ "$DISTRO" = "arch" ]; then
+        pac hyprland hyprpaper hyprlock hypridle hyprpolkitagent \
+            xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
+            wl-clipboard grim slurp cliphist swww libnotify \
+            waybar kitty rofi-wayland wofi \
+            noto-fonts noto-fonts-emoji ttf-dejavu ttf-jetbrains-mono-nerd \
+            zsh zsh-autosuggestions zsh-syntax-highlighting starship fastfetch fzf zoxide \
+            pkgfile
+        aur zsh-fzf-tab-git
+        
+        # Inicializar base de datos de pkgfile
+        log "${CYAN}[*] Inicializando base de datos de pkgfile (esto puede tardar)...${NC}"
+        sudo pkgfile -u || true
+    else
+        pac hyprland hyprpaper waybar kitty rofi wofi mako-notifier libnotify-bin \
+            xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
+            fonts-noto-core fonts-noto-color-emoji \
+            zsh zsh-autosuggestions zsh-syntax-highlighting starship fzf zoxide \
+            command-not-found
+        sudo apt update && sudo update-command-not-found || true
+        
+        # swww y hyprlock (Debian binary fallback)
+        if ! command_exists swww; then
+            log "${CYAN}[*] Instalando swww (binary skip fallback)...${NC}"
+            install_gh_release "L422Y/swww" ".*x86_64.*\.tar\.gz" "swww" "swww"
+            install_gh_release "L422Y/swww" ".*x86_64.*\.tar\.gz" "swww-daemon" "swww-daemon"
+        fi
+        if ! command_exists hyprlock; then
+            log "${CYAN}[*] Instalando hyprlock (Intentando apt)...${NC}"
+            sudo apt-get install -y hyprlock 2>/dev/null || log "${YELLOW}  [!] hyprlock no disponible en repos Debian estables${NC}"
+        fi
+    fi
+
+    # ── Cambiar shell a ZSH ────────────────────────────────────────────
+    if [ -n "$REAL_USER" ]; then
+        log "${CYAN}[*] Activando ZSH para $REAL_USER...${NC}"
+        sudo chsh -s /usr/bin/zsh "$REAL_USER" 2>/dev/null || true
+    fi
+
+    # ── Desplegar Configuraciones (.zshrc incluido) ───────────────────
     deploy_configs
-    log "${GREEN}[✓] Módulo Sistema Base instalado.${NC}"
+    
+    log "${GREEN}[✓] Sistema Base y ZSH instalados y configurados perfectamente.${NC}"
+}
+
+install_module_audio_pro() {
+    log "${CYAN}[*] Instalando Ecosistema Audio Pro (Pipewire + EasyEffects)...${NC}"
+    
+    if [ "$DISTRO" = "arch" ]; then
+        pac pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
+            easyeffects lsp-plugins calf zam-plugins qpwgraph
+    else
+        sudo apt-get install -y pipewire pipewire-pulse wireplumber \
+            easyeffects lsp-plugins-lv2 calf-plugins zam-plugins qpwgraph
+    fi
+
+    log "${CYAN}[*] Habilitando servicios de audio (User level)...${NC}"
+    # Asegurar que los servicios de usuario estén activos
+    systemctl --user daemon-reload
+    systemctl --user enable --now pipewire pipewire-pulse wireplumber
+
+    log "${GREEN}[✓] Ecosistema Audio Pro instalado y activo.${NC}"
+    log "${CYAN}[i] Usa 'EasyEffects' para mejorar el sonido de tu Nitro 5.${NC}"
+}
+
+install_module_audit() {
+    log "${CYAN}[*] Iniciando Auditoría de Seguridad con Reporte Detallado...${NC}"
+    
+    # 1. Instalación de herramientas
+    log "${CYAN}[*] Instalando herramientas (Lynis, Rkhunter, ClamAV)...${NC}"
+    if [ "$DISTRO" = "arch" ]; then
+        pac lynis rkhunter chkrootkit clamav
+    else
+        echo "postfix postfix/main_mailer_type string No configuration" | sudo debconf-set-selections 2>/dev/null || true
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q lynis rkhunter chkrootkit clamav clamav-daemon
+    fi
+
+    # 2. Escaneos
+    log "${CYAN}--- [1/4] Análisis de Red y Puertos ---${NC}"
+    # Formato: Local Address:Port (Service)
+    local NET_ST; NET_ST=$(ss -tulnp | grep LISTEN | awk '{print $5, $7}' | sed 's/users:(("//g; s/")//g; s/",pid=.*//g')
+    
+    log "${CYAN}--- [2/4] Análisis de Rootkits (Sistema de Ficheros) ---${NC}"
+    sudo rkhunter --propupd >/dev/null 2>&1
+    local RK_RES; RK_RES=$(sudo rkhunter --check --sk --nocolor 2>/dev/null | grep "Warning")
+    local CHK_RES; CHK_RES=$(sudo chkrootkit 2>/dev/null | grep "INFECTED")
+
+    log "${CYAN}--- [3/4] Auditoría Integral de Robustez (Lynis) ---${NC}"
+    sudo lynis audit system --quick 2>/dev/null > /tmp/lynis_audit.log
+    local LYNIS_SCORE; LYNIS_SCORE=$(grep "Hardening index" /tmp/lynis_audit.log | sed 's/[^0-9]//g' || echo "--")
+    local LYNIS_SUG; LYNIS_SUG=$(grep "Suggestion:" /tmp/lynis_audit.log | head -n 3)
+
+    log "${CYAN}--- [4/4] Búsqueda de Malware (ClamAV) ---${NC}"
+    sudo freshclam >/dev/null 2>&1 || true
+    local CLAM_RES; CLAM_RES=$(sudo clamscan -r /etc /bin /usr/bin "$HOME" --quiet --no-summary)
+
+    # 3. Reporte Final Detallado
+    log ""
+    log "${MAGENTA}╔══════════════════════════════════════════════════════╗${NC}"
+    log "${MAGENTA}║           INFORME DE SEGURIDAD CAZIL SYSTEM          ║${NC}"
+    log "${MAGENTA}╚══════════════════════════════════════════════════════╝${NC}"
+    
+    # SECCIÓN: RED
+    log "${CYAN}[ RED Y CONEXIONES ]${NC}"
+    if [ -z "$NET_ST" ]; then
+        log "  ${GREEN}[✓] No hay puertos externos escuchando sospechosos.${NC}"
+    else
+        log "  ${YELLOW}[!] Puertos abiertos detectados:${NC}"
+        echo "$NET_ST" | while read -r line; do
+            local port; port=$(echo "$line" | grep -oP ':\d+' | cut -d: -f2 || echo "")
+            if [ -n "$port" ]; then
+                log "      - $line -> ${CYAN}Para cerrar: sudo ufw deny $port${NC}"
+            else
+                log "      - $line"
+            fi
+        done
+    fi
+
+    # SECCIÓN: ROOTKITS
+    log "\n${CYAN}[ ROOTKITS Y ANOMALÍAS ]${NC}"
+    if [ -z "$RK_RES" ] && [ -z "$CHK_RES" ]; then
+        log "  ${GREEN}[✓] No se detectaron anomalías en el kernel ni binarios.${NC}"
+    else
+        log "  ${RED}[!] Posibles anomalías encontradas:${NC}"
+        [ -n "$RK_RES" ] && echo "$RK_RES" | while read -r line; do log "      - [Rkhunter] $line"; done
+        [ -n "$CHK_RES" ] && echo "$CHK_RES" | while read -r line; do log "      - [Chkrootkit] $line"; done
+        log "      ${YELLOW}Consejo: Revisa los logs en /var/log/rkhunter.log${NC}"
+    fi
+
+    # SECCIÓN: LYNIS
+    log "\n${CYAN}[ ROBUSTEZ DEL SISTEMA (LYNIS) ]${NC}"
+    log "  Puntaje (Hardening Index): ${MAGENTA}${LYNIS_SCORE}/100${NC}"
+    if [ -n "$LYNIS_SUG" ]; then
+        log "  ${YELLOW}[!] Recomendaciones principales:${NC}"
+        echo "$LYNIS_SUG" | sed 's/Suggestion: //g' | while read -r line; do log "      - $line"; done
+    fi
+
+    # SECCIÓN: ANTIVIRUS
+    log "\n${CYAN}[ MALWARE Y AMENAZAS ]${NC}"
+    if [ -z "$CLAM_RES" ]; then
+        log "  ${GREEN}[✓] ClamAV no encontró amenazas en carpetas críticas.${NC}"
+    else
+        log "  ${RED}[!] ¡AMENAZAS DETECTADAS!${NC}"
+        echo "$CLAM_RES" | while read -r line; do log "      - $line"; done
+        log "      ${YELLOW}Consejo: Mueve o borra los archivos infectados manualmente.${NC}"
+    fi
+
+    # 4. Limpieza absoluta
+    log ""
+    log "${CYAN}[*] Finalizando y limpiando entorno de auditoría...${NC}"
+    if [ "$DISTRO" = "arch" ]; then
+        sudo pacman -Rs --noconfirm lynis rkhunter chkrootkit clamav 2>/dev/null || true
+    else
+        sudo apt-get purge -y lynis rkhunter chkrootkit clamav clamav-daemon 2>/dev/null || true
+        sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -q >/dev/null 2>&1
+    fi
+    log "${GREEN}[✓] Auditoría Terminada. Sistema Limpio.${NC}"
+}
+
+cleanup_orphans() {
+    log "${CYAN}[*] Limpiando dependencias huérfanas y paquetes innecesarios...${NC}"
+    if [ "$DISTRO" = "arch" ]; then
+        if pacman -Qtdq >/dev/null 2>&1; then
+            sudo pacman -Rns $(pacman -Qtdq) --noconfirm
+        else
+            log "${GREEN}[✓] No se hallaron huérfanos en Arch.${NC}"
+        fi
+    else
+        sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -q
+        sudo apt-get clean
+    fi
+    log "${GREEN}[✓] Sistema optimizado y limpio.${NC}"
 }
 
 install_module_luks() {
@@ -868,27 +1178,59 @@ install_module_luks() {
     else
         pac plymouth plymouth-themes
     fi
+    setup_plymouth_cazil
+}
+
+install_module_fans() {
+    log "${CYAN}[*] Configurando control de Ventiladores (NitroSense)...${NC}"
     
-    if [ -d "$SHARED_DIR/config/plymouth/themes" ]; then
-        local ply_dest="/usr/share/plymouth/themes/cazil-cyber"
-        sudo mkdir -p "$ply_dest"
-        sudo cp -r "$SHARED_DIR/config/plymouth/themes"/. "$ply_dest/"
-        [ -f "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" ] && \
-            sudo cp "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" "$ply_dest/"
-        
-        if command_exists plymouth-set-default-theme; then
-            sudo plymouth-set-default-theme -R cazil-cyber 2>/dev/null || true
-            # Regenerar initramfs para aplicar tema
-            if [ "$DISTRO" = "arch" ]; then
-                sudo mkinitcpio -P 2>/dev/null || true
-            else
-                sudo update-initramfs -u 2>/dev/null || true
-            fi
-        fi
-        log "${GREEN}  [✓]   Plymouth LUKS instalado y activado.${NC}"
+    # ── Dependencias ─────────────────────────────────────────────────────
+    if [ "$DISTRO" = "arch" ]; then
+        pac vim-runtime  # Provee xxd
     else
-        log "${RED}  [!]   No se encontró la carpeta del tema Plymouth en $SHARED_DIR${NC}"
+        pac xxd
     fi
+
+    # ── Despliegue del script ───────────────────────────────────────────
+    local TARGET_DIR="$HOME/sscript/vent"
+    mkdir -p "$TARGET_DIR"
+    
+    local FANS_SRC="$SHARED_DIR/sscript/ventilador/nitrosense"
+    if [ -f "$FANS_SRC" ]; then
+        cp "$FANS_SRC" "$TARGET_DIR/nitrosense"
+        chmod +x "$TARGET_DIR/nitrosense"
+        log "${GREEN}[✓] Script desplegado en $TARGET_DIR/nitrosense${NC}"
+    else
+        log "${RED}[!] Error: Archivo fuente nitrosense no encontrado.${NC}"
+        return 1
+    fi
+
+    log "${YELLOW}[i] Uso: sudo $TARGET_DIR/nitrosense <m|a|i|r>${NC}"
+    log "    m=Max, a=Auto, i=Info, r=Read EC"
+}
+
+install_module_ly() {
+    log "${CYAN}[*] Instalando Ly Display Manager...${NC}"
+    if [ "$DISTRO" = "arch" ]; then
+        pac ly 2>/dev/null || aur ly
+    else
+        pac ly 2>/dev/null || log "${YELLOW}[!] Ly no disponible en repos de Debian. Instala manualmente.${NC}"
+    fi
+
+    # Deshabilitar otros posibles gestores de sesión para evitar conflictos
+    log "${CYAN}[*] Configurando servicios de Ly...${NC}"
+    for dm in gdm sddm lightdm lxdm slim; do
+        sudo systemctl disable "$dm" 2>/dev/null || true
+    done
+    sudo systemctl disable display-manager.service 2>/dev/null || true
+
+    sudo mkdir -p /etc/ly
+    if [ -f "$SHARED_DIR/config/ly/config.ini" ]; then
+        sudo cp "$SHARED_DIR/config/ly/config.ini" /etc/ly/config.ini
+    fi
+
+    sudo systemctl enable ly.service || true
+    log "${GREEN}[✓] Módulo Ly instalado y configurado como gestor de sesión.${NC}"
 }
 
 deploy_configs() {
@@ -905,6 +1247,15 @@ deploy_configs() {
     else
         mkdir -p "$HOME/Documents" "$HOME/Downloads" "$HOME/Music" "$HOME/Pictures" "$HOME/Videos" "$HOME/Public" "$HOME/Templates"
         log "${GREEN}  [✓]   Carpetas creadas manualmente${NC}"
+    fi
+    
+    # ── Wallpapers ───────────────────────────────────────────────────────────
+    log "${CYAN}[*] Desplegando fondos de pantalla...${NC}"
+    local WALLPAPER_DIR="$HOME/Imagenes/wallpapers"
+    mkdir -p "$WALLPAPER_DIR"
+    if [ -d "$SHARED_DIR/assets/wallpapers" ]; then
+        cp -r "$SHARED_DIR/assets/wallpapers"/* "$WALLPAPER_DIR/"
+        log "${GREEN}  [✓]   Fondos copiados a $WALLPAPER_DIR${NC}"
     fi
 
     # ── Tema ────────────────────────────────────────────────────────────────────
@@ -1038,24 +1389,7 @@ deploy_configs() {
     fi
 
     # ── Shared: Plymouth ────────────────────────────────────────────────────────
-    if [ -d "$SHARED_DIR/config/plymouth/themes" ]; then
-        local ply_dest="/usr/share/plymouth/themes/cazil-cyber"
-        sudo mkdir -p "$ply_dest"
-        sudo cp -r "$SHARED_DIR/config/plymouth/themes"/. "$ply_dest/"
-        # Si el wallpaper existe, copiarlo al tema también
-        [ -f "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" ] && \
-            sudo cp "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" "$ply_dest/"
-        # Activar el tema (Debian y Arch)
-        if command_exists plymouth-set-default-theme; then
-            sudo plymouth-set-default-theme -R cazil-cyber 2>/dev/null || true
-        elif command_exists update-alternatives; then
-            sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth \
-                default.plymouth "$ply_dest/cazil-cyber.plymouth" 100 2>/dev/null || true
-            sudo update-alternatives --set default.plymouth "$ply_dest/cazil-cyber.plymouth" 2>/dev/null || true
-            sudo update-initramfs -u 2>/dev/null || sudo mkinitcpio -P 2>/dev/null || true
-        fi
-        log "${GREEN}  [✓]   Plymouth → $ply_dest (tema activo)${NC}"
-    fi
+    setup_plymouth_cazil
 
     # ── Shared: Protección GRUB con contraseña ───────────────────────────────────
     if ask "¿Configurar contraseña de GRUB? (protege edición de entradas ante acceso físico)"; then
@@ -1167,36 +1501,70 @@ deploy_configs() {
 }
 
 install-rgb() {
-    local RGB_SRC="$SHARED_DIR/sscript/rgb"
-    if [ ! -f "$RGB_SRC/install.sh" ]; then
-        log "${YELLOW}[!] sscript/rgb/install.sh no encontrado. Saltando.${NC}"; return
+    ask "¿Instalar driver RGB Acer Nitro/Predator (JafarAkhondali module)?" || return
+
+    # ── Blacklist acer_wmi (conflictivo con este driver) ─────────────────
+    local ACER_BLACKLIST="/etc/modprobe.d/blacklist-acer-wmi.conf"
+    if [ ! -f "$ACER_BLACKLIST" ]; then
+        log "${CYAN}[*] Blacklisteando acer_wmi para evitar conflictos...${NC}"
+        echo "blacklist acer_wmi" | sudo tee "$ACER_BLACKLIST" > /dev/null
+        echo "install acer_wmi /bin/false" | sudo tee -a "$ACER_BLACKLIST" > /dev/null
     fi
-    ask "¿Instalar driver RGB Acer Nitro?" || return
 
     if [ "$DISTRO" = "arch" ]; then
-        pac dkms python base-devel
+        log "${CYAN}[*] Instalando desde AUR: acer-predator-turbo-and-rgb-dkms-git...${NC}"
+        # Asegurar headers primero
         local kernel; kernel=$(uname -r)
         echo "$kernel" | grep -q "lts" && pac linux-lts-headers || \
         echo "$kernel" | grep -q "zen" && pac linux-zen-headers || pac linux-headers
+        
+        aur acer-predator-turbo-and-rgb-dkms-git
     else
-        pac dkms python3 build-essential "linux-headers-$(uname -r)"
+        log "${CYAN}[*] Instalando vía Git para Debian/Ubuntu...${NC}"
+        pac git dkms build-essential rsync "linux-headers-$(uname -r)"
+        
+        local tmp; tmp=$(mktemp -d)
+        git clone --depth=1 https://github.com/JafarAkhondali/acer-predator-turbo-and-rgb-keyboard-linux-module "$tmp/acer-rgb"
+        cd "$tmp/acer-rgb"
+        chmod +x ./*.sh
+        sudo ./install_service.sh
     fi
 
-    sudo bash "$RGB_SRC/install.sh"
+    # ── Despliegue de scripts personalizados ($HOME/sscript) ──────────────
+    local TARGET_DIR="$HOME/sscript"
+    log "${CYAN}[*] Desplegando scripts en $TARGET_DIR...${NC}"
+    mkdir -p "$TARGET_DIR"
+    
+    local RGB_SCRIPTS_SRC="$SHARED_DIR/sscript/rgb/scripts"
+    if [ -d "$RGB_SCRIPTS_SRC" ]; then
+        cp "$RGB_SCRIPTS_SRC"/*.{py,sh} "$TARGET_DIR/"
+        chmod +x "$TARGET_DIR"/*.sh "$TARGET_DIR"/*.py
+    fi
 
-    local LIB_DIR="/usr/local/lib/nitro-rgb"
-    sudo mkdir -p "$LIB_DIR"
-    for f in nitro-rgb.py facer-rgb.py teclado-neon.py teclado-rgb.sh; do
-        [ -f "$RGB_SRC/scripts/$f" ] && sudo cp "$RGB_SRC/scripts/$f" "$LIB_DIR/"
-    done
-    [ -f "$LIB_DIR/teclado-rgb.sh" ] && sudo chmod +x "$LIB_DIR/teclado-rgb.sh"
+    # ── Configurar Servicio Persistente ──────────────────────────────────
+    log "${CYAN}[*] Configurando nitro-rgb.service...${NC}"
+    sudo bash -c "cat > /etc/systemd/system/nitro-rgb.service" <<EOF
+[Unit]
+Description=Servicio de Control RGB Acer Nitro (Battery Monitor)
+After=multi-user.target
 
-    sudo tee /usr/local/bin/nitro-rgb > /dev/null << 'WRAPPER'
-#!/bin/bash
-python3 /usr/local/lib/nitro-rgb/nitro-rgb.py "$@"
-WRAPPER
-    sudo chmod +x /usr/local/bin/nitro-rgb
-    log "${GREEN}[✓] RGB instalado. Uso: nitro-rgb --all -cR 0 -cG 255 -cB 0${NC}"
+[Service]
+Type=simple
+User=$REAL_USER
+ExecStart=/bin/bash $TARGET_DIR/teclado-rgb.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable nitro-rgb.service
+    sudo systemctl restart nitro-rgb.service
+
+    log "${GREEN}[✓] RGB y servicio de automatización instalados en $TARGET_DIR.${NC}"
+    log "${CYAN}[i] Control: ~/sscript/nitro-rgb.py --all -cR 0 -cG 255 -cB 255${NC}"
 }
 
 configure_autostart() {
@@ -1251,19 +1619,26 @@ if [ "$DOTFILES_ONLY" = true ]; then
     log "${MAGENTA}╠══════════════════════════════════════════════╣${NC}"
     log "${MAGENTA}║  ${GREEN}[1]${NC} Instalar Solo Kitty (App + Config)        ${MAGENTA}║${NC}"
     log "${MAGENTA}║  ${GREEN}[2]${NC} Instalar Solo Firefox (App + Config)      ${MAGENTA}║${NC}"
-    log "${MAGENTA}║  ${GREEN}[3]${NC} Entorno Trabajo (QEMU + Docker)           ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[3]${NC} Solo Entorno Virtual (QEMU/KVM)           ${MAGENTA}║${NC}"
     log "${MAGENTA}║  ${GREEN}[4]${NC} Sistema Base (Hyprland+Waybar+Rofi)       ${MAGENTA}║${NC}"
-    log "${MAGENTA}║  ${GREEN}[5]${NC} Desplegar TODAS las configuraciones       ${MAGENTA}║${NC}"
-    log "${MAGENTA}║  ${GREEN}[6]${NC} Instalar Solo LUKS (Plymouth Theme)       ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[5]${NC} Instalar Solo LUKS (Plymouth Theme)       ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[6]${NC} Instalar Solo Ly (Display Manager)        ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[7]${NC} Instalar Solo RGB (Keyboard)              ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[8]${NC} Instalar Solo Ventiladores (Fans)         ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[9]${NC} Audio Pro (Pipewire+EasyEffects)          ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[10]${NC} Revisando Sistema (Auditoría)            ${MAGENTA}║${NC}"
+    log "${MAGENTA}║  ${GREEN}[11]${NC} Limpiar Dependencias (Huérfanos)         ${MAGENTA}║${NC}"
     log "${MAGENTA}╚══════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -ne "${YELLOW}  Opción [1-6]: ${NC}"
+    echo -ne "${YELLOW}  Opción [1-11]: ${NC}"
     
-    CONFIG_CHOICE=""
-    if [ "$AUTO_INSTALL" = true ]; then
-        CONFIG_CHOICE=5; echo "5 (AUTO)"
-    else
-        read -r CONFIG_CHOICE
+    CONFIG_CHOICE="$MODULE_CHOICE"
+    if [ -z "$CONFIG_CHOICE" ]; then
+        if [ "$AUTO_INSTALL" = true ]; then
+            CONFIG_CHOICE=5; echo "5 (AUTO)"
+        else
+            read -r CONFIG_CHOICE
+        fi
     fi
 
     case "$CONFIG_CHOICE" in
@@ -1271,13 +1646,13 @@ if [ "$DOTFILES_ONLY" = true ]; then
         2) install_module_firefox ;;
         3) install_module_work_env ;;
         4) install_module_system ;;
-        5)
-            deploy_configs
-            log "${GREEN}[✓] Dotfiles globales aplicados. ¡Listo!${NC}"
-            ;;
-        6)
-            install_module_luks
-            ;;
+        5) install_module_luks ;;
+        6) install_module_ly ;;
+        7) install-rgb ;;
+        8) install_module_fans ;;
+        9) install_module_audio_pro ;;
+        10) install_module_audit ;;
+        11) cleanup_orphans ;;
         *)
             log "${RED}[!] Opción inválida. Saliendo...${NC}"
             exit 1
