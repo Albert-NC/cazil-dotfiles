@@ -220,6 +220,7 @@ eval "$(zoxide init zsh)"
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{A-Z}={a-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 # --- 13. COMMAND NOT FOUND HANDLER (PROMPT TO INSTALL) ---
+autoload -Uz compinit && compinit
 # Colores para el prompt (fallback si no están definidos)
 [ -z "$NC" ] && NC='\033[0m'
 [ -z "$CYAN" ] && CYAN='\033[0;36m'
