@@ -936,8 +936,7 @@ setup_plymouth_cazil() {
     local ply_dest="/usr/share/plymouth/themes/cazil-cyber"
     sudo mkdir -p "$ply_dest"
     sudo cp -r "$SHARED_DIR/config/plymouth/themes"/. "$ply_dest/"
-    [ -f "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" ] && \
-        sudo cp "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" "$ply_dest/"
+
 
     # ── MKINITCPIO Setup (Arch Only) ────────────────────────────────────
     if [ "$DISTRO" = "arch" ] && [ -f /etc/mkinitcpio.conf ]; then
@@ -1346,8 +1345,7 @@ deploy_configs() {
         local grub_dest="/boot/grub/themes/cazil-cyberpunk"
         sudo mkdir -p "$grub_dest"
         sudo cp -r "$SHARED_DIR/config/grub/cyberpunk"/. "$grub_dest/"
-        [ -f "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" ] && \
-            sudo cp "$SHARED_DIR/assets/wallpapers/bg_grub1_con_logo.png" "$grub_dest/"
+
         grep -q "^GRUB_THEME=" /etc/default/grub 2>/dev/null && \
             sudo sed -i "s|^GRUB_THEME=.*|GRUB_THEME=\"$grub_dest/theme.txt\"|" /etc/default/grub || \
             echo "GRUB_THEME=\"$grub_dest/theme.txt\"" | sudo tee -a /etc/default/grub > /dev/null

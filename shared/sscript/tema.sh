@@ -122,7 +122,7 @@ if [ -f "$FF_FILE" ]; then
 fi
 
 # 8. Fondo de Pantalla Estático (vía swww para eficiencia)
-WALLPAPER="$HOME/Pictures/wallpapers/fondocentral.png"
+WALLPAPER="$HOME/Pictures/wallpapers/7888522.jpg"
 if command -v swww &> /dev/null; then
     swww img "$WALLPAPER" --transition-type wipe --transition-step 90 &
 fi
