@@ -490,12 +490,9 @@ EOF
 
         # ── Navegadores ───────────────────────────────────────────────────────────
         ask "¿Instalar Firefox?" && pac firefox
-        ask "¿Instalar Flatpak (necesario para VSCode, Brave, VLC)?" && {
+        ask "¿Instalar Flatpak (necesario para Brave, VLC)?" && {
             pac flatpak
-            flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
         }
-        ask "¿Instalar Visual Studio Code (Flatpak)?" && \
-            flatpak install -y flathub com.visualstudio.code || true
         ask "¿Instalar Brave (Flatpak)?" && \
             flatpak install -y flathub com.brave.Browser || true
 
@@ -1261,16 +1258,7 @@ deploy_configs() {
     _put "$THEME_DIR/fastfetch" "$HOME/.config/fastfetch"
     _put "$THEME_DIR/yazi"     "$HOME/.config/yazi"
     _put "$SHARED_DIR/config/tmux" "$HOME/.config/tmux"
-    _put "$THEME_DIR/vscode-user" "/tmp/vscode-user-tmp" 2>/dev/null || true
-    [ -d "$THEME_DIR/vscode-user" ] && {
-        mkdir -p "$HOME/.config/Code/User"
-        cp -r "$THEME_DIR/vscode-user"/. "$HOME/.config/Code/User/"
-        # Fix ownership
-        if [ "$EUID" -eq 0 ] && [ -n "${REAL_USER:-}" ]; then
-            chown -R "$REAL_USER:$REAL_USER" "$HOME/.config/Code/User"
-        fi
-        log "${GREEN}  [✓]   VSCode User settings${NC}"
-    }
+
 
     [ -f "$THEME_DIR/starship/starship.toml" ] && \
         _put "$THEME_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
