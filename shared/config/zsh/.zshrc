@@ -122,6 +122,10 @@ alias prime-run='__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia'
 alias gpu-integrada='sudo envycontrol -s integrated'
 alias gpu-hibrido='sudo envycontrol -s hybrid'
 
+# --- IMPRESORAS Y RED LOCAL ---
+alias print-on="sudo systemctl start cups avahi-daemon cups-browsed 2>/dev/null || sudo systemctl start cups avahi-daemon"
+alias print-off="sudo systemctl stop cups avahi-daemon cups-browsed 2>/dev/null || sudo systemctl stop cups avahi-daemon"
+
 # --- 8. DESARROLLO WEB Y DB ---
 alias web_on='xdg-open http://127.0.0.1:5500'
 alias web_off='kill -9 $(ss -tulpn | grep :5500 | awk -F"pid=" '\''{print $2}'\'' | cut -d"," -f1) 2>/dev/null && echo "Puerto 5500 liberado" || echo "No hay nada corriendo ahí"'
