@@ -43,7 +43,7 @@
         "format-wifi": " Identity Protected",
         "format-ethernet": "🔗 Identity Protected",
         "format-disconnected": "⚠️ Not Connect",
-        "on-click": "bash $HOME/.local/bin/toggle-radio wifi on",
+        "on-click": "nm-connection-editor",
         "on-click-right": "bash $HOME/.local/bin/toggle-radio wifi off",
         "tooltip-format": "🔒 Network Masked\nTraffic via Secure Tunnel",
         "tooltip-format-wifi": " {essid} ({signaldBm}dBm)\nIP: Hidden",

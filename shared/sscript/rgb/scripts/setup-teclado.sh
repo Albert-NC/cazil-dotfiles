@@ -10,7 +10,14 @@ DKMS_PATH="/usr/src/facer-1.0"
 echo "🚀 Iniciando instalación INMORTAL y limpieza de sistema..."
 
 # 1. Instalar dependencias necesarias
-sudo apt update && sudo apt install -y dkms build-essential python3-pip
+if command -v pacman &>/dev/null; then
+    sudo pacman -Sy --needed --noconfirm dkms base-devel python-pip
+elif command -v apt &>/dev/null; then
+    sudo apt update && sudo apt install -y dkms build-essential python3-pip
+else
+    echo "❌ Error: Gestor de paquetes no soportado."
+    exit 1
+fi
 
 # 2. Preparar la carpeta oficial en el sistema (Blindaje)
 echo "📂 Registrando código fuente en /usr/src..."
@@ -66,7 +73,13 @@ EOF
 
 # 7. Sincronizar y Limpiar
 echo "🧠 Actualizando initramfs..."
-sudo update-initramfs -u
+if command -v mkinitcpio &>/dev/null; then
+    sudo mkinitcpio -P
+elif command -v update-initramfs &>/dev/null; then
+    sudo update-initramfs -u
+else
+    echo "⚠️ Advertencia: No se pudo actualizar initramfs (comando no encontrado)."
+fi
 
 echo "🧹 Limpiando archivos temporales del Home..."
 rm -rf "$REPO_PATH"

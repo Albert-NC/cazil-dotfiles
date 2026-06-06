@@ -438,8 +438,8 @@ EOF
         }
 
         # ── Herramientas esenciales de shell ─────────────────────────────────────
-        ask "¿Instalar ZSH + plugins + Starship + Fastfetch?" && {
-            pac zsh zsh-autosuggestions zsh-syntax-highlighting starship fastfetch tmux fzf zoxide
+        ask "¿Instalar ZSH, Neovim y herramientas de terminal?" && {
+            pac zsh zsh-autosuggestions zsh-syntax-highlighting starship fastfetch tmux fzf zoxide neovim wl-clipboard gcc npm unzip curl wget
             aur zsh-fzf-tab-git
             chsh -s /usr/bin/zsh "$REAL_USER" 2>/dev/null || true
         }
@@ -548,15 +548,7 @@ EOF
             log "${GREEN}  [\u2713]   Virtualización instalada (inicia con: sudo systemctl start libvirtd)${NC}"
         }
 
-        # ── WinApps ───────────────────────────────────────────────────────────────
-        ask "¿Instalar soporte WinApps (apps Windows en Linux)?" && {
-            pac freerdp libvirt virt-manager
-            local WA_DIR="$HOME/.local/share/winapps"
-            if [ ! -d "$WA_DIR" ]; then
-                git clone https://github.com/winapps-org/winapps.git "$WA_DIR"
-                (cd "$WA_DIR" && ./setup.sh --user) || true
-            fi
-        }
+
 
         # ── DNS Seguro / MAC aleatoria / Hardening ────────────────────────────────
         ask "¿Configurar DNS Seguro (DoT / Cloudflare)?"     && bash "$SHARED_DIR/sscript/config-dns-seguro.sh"
@@ -577,7 +569,8 @@ EOF
         pac nvidia-dkms nvidia-utils nvidia-settings lib32-nvidia-utils
 
         sudo localectl set-x11-keymap latam
-        log "${GREEN}[✓] Teclado configurado en Latinoamericano (sistema).${NC}"
+        sudo localectl set-keymap la-latin1 2>/dev/null || echo "KEYMAP=la-latin1" | sudo tee /etc/vconsole.conf > /dev/null
+        log "${GREEN}[✓] Teclado configurado en Latinoamericano (X11 y TTY/Ly/Plymouth).${NC}"
 
         # ── 1. NVIDIA / Hardware ──────────────────────────────────────────────────
         # Nouveau y nvidia no pueden coexistir. Si nouveau carga primero, el driver
@@ -776,11 +769,11 @@ _put() {
     fi
     [ -L "$to" ] && rm -f "$to"
     mkdir -p "$(dirname "$to")"
-    if [ -d "$from" ]; then cp -r "$from" "$to"; else cp "$from" "$to"; fi
+    ln -sf "$from" "$to"
     
-    # Asegurar propiedad del usuario real si corre como root/sudo
+    # Asegurar propiedad del enlace simbólico si corre como root/sudo
     if [ "$EUID" -eq 0 ] && [ -n "${REAL_USER:-}" ]; then
-        chown -R "$REAL_USER:$REAL_USER" "$to"
+        chown -h "$REAL_USER:$REAL_USER" "$to"
     fi
     log "${GREEN}  [✓]   $to${NC}"
 }
@@ -1316,12 +1309,7 @@ deploy_configs() {
         log "${GREEN}  [✓]   hypridle.conf (shared) → ~/.config/hypr/hypridle.conf${NC}"
     fi
 
-    # WinApps Config
-    if [ -f "$SHARED_DIR/config/winapps/winapps.conf" ]; then
-        mkdir -p "$HOME/.config/winapps"
-        cp "$SHARED_DIR/config/winapps/winapps.conf" "$HOME/.config/winapps/winapps.conf"
-        log "${GREEN}  [✓]   winapps.conf (shared) → ~/.config/winapps/winapps.conf${NC}"
-    fi
+
 
     # Wallpapers → ~/Pictures/wallpapers/
     if [ -d "$SHARED_DIR/assets/wallpapers" ]; then
@@ -1676,14 +1664,31 @@ configure_autostart
 
 echo ""
 log "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
-log "${GREEN}║   CAZIL SYSTEM — TEMA: $THEME_NAME — LISTO      ║${NC}"
+log "${GREEN}║   CAZIL SYSTEM — INSTALACIÓN FINALIZADA          ║${NC}"
 log "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
 log ""
+
+# Analizar log para encontrar posibles fallos
+ERRORES=$(grep -iE "no disponible|falló|error |not found|failed|no se pudo|\[\!\]" "$LOG_FILE" | grep -v "grep" || true)
+
+if [ -n "$ERRORES" ]; then
+    log "${RED}⚠️  ATENCIÓN: Se detectaron algunas advertencias o fallos durante la instalación que podrías necesitar revisar a mano:${NC}"
+    echo "$ERRORES" | while read -r line; do
+        # Limpiar colores ANSI para mostrarlos limpios o aplicar un formato
+        clean_line=$(echo "$line" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g")
+        log "   ${YELLOW}➔ $clean_line${NC}"
+    done
+    log ""
+else
+    log "${GREEN}✅ ¡Todo se instaló correctamente sin errores detectados!${NC}"
+    log ""
+fi
+
 log "${CYAN}  PRÓXIMOS PASOS:${NC}"
-log "${YELLOW}1.${NC} Reinicia: ${CYAN}sudo reboot${NC}"
+log "${YELLOW}1.${NC} 🔄 REINICIO OBLIGATORIO: Necesitas reiniciar para aplicar los cambios en el kernel (NVIDIA, GRUB, etc). Ejecuta: ${CYAN}sudo reboot${NC}"
 log "${YELLOW}2.${NC} Si tienes problema de brillo: ${CYAN}sudo brillo1${NC} → reboot → ${CYAN}sudo brillo2${NC}"
-log "${YELLOW}3.${NC} Hyprland arrancará en tty1 automáticamente"
-log "${YELLOW}4.${NC} Log completo: ${CYAN}cat $LOG_FILE${NC}"
+log "${YELLOW}3.${NC} Hyprland arrancará en tty1 automáticamente."
+log "${YELLOW}4.${NC} Log completo guardado en: ${CYAN}$LOG_FILE${NC}"
 log ""
 log "${GREEN}Fuentes instaladas en: ~/.local/share/fonts/cazil/${NC}"
 log "${GREEN}Wallpapers en: ~/Pictures/wallpapers/${NC}"
