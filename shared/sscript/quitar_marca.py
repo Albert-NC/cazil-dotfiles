@@ -25,10 +25,11 @@ def remove_watermark(input_path, output_path, method="inpaint"):
             # 2. Crear una máscara (fondo negro, zona a reparar en blanco)
             mask = np.zeros((h, w), dtype=np.uint8)
             
-            # La marca de Gemini suele estar en los últimos 80x80 píxeles de la esquina inferior derecha
-            # Dibujamos un rectángulo blanco en la máscara en esa zona
-            ancho_marca = 80
-            alto_marca = 80
+            # La marca de Gemini suele estar en los últimos 80x80 píxeles, pero en alta 
+            # resolución (1024px o más) la marca sube a 96x96 o más.
+            # Usaremos 160x160 para estar completamente seguros de "borrarla" toda.
+            ancho_marca = 160
+            alto_marca = 160
             cv2.rectangle(mask, (w - ancho_marca, h - alto_marca), (w, h), 255, -1)
             
             # 3. Aplicar inpainting (Telea algorithm suele ser muy bueno para logos)
