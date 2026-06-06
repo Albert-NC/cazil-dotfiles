@@ -25,10 +25,10 @@ def remove_watermark(input_path, output_path, method="inpaint"):
             # 2. Crear una máscara (fondo negro, zona a reparar en blanco)
             mask = np.zeros((h, w), dtype=np.uint8)
             
-            # Calculamos dinámicamente el tamaño de la máscara (12% del ancho, 10% del alto)
-            # para que se adapte perfectamente a imágenes 4K, 1080p o resoluciones bajas
-            ancho_marca = int(w * 0.12)
-            alto_marca = int(h * 0.10)
+            # Calculamos dinámicamente el tamaño de la máscara (20% del ancho, 20% del alto)
+            # para que se adapte perfectamente a imágenes donde la marca está muy separada de la esquina.
+            ancho_marca = int(w * 0.20)
+            alto_marca = int(h * 0.20)
             cv2.rectangle(mask, (w - ancho_marca, h - alto_marca), (w, h), 255, -1)
             
             # 3. Aplicar inpainting (Telea algorithm suele ser muy bueno para logos)
@@ -42,9 +42,9 @@ def remove_watermark(input_path, output_path, method="inpaint"):
         # Si OpenCV no está disponible o se elige otro método, usar Pillow
         with Image.open(input_path) as img:
             width, height = img.size
-            # Cálculo dinámico para métodos de respaldo
-            dyn_w = int(width * 0.12)
-            dyn_h = int(height * 0.10)
+            # Cálculo dinámico para métodos de respaldo (20%)
+            dyn_w = int(width * 0.20)
+            dyn_h = int(height * 0.20)
             
             if method == "crop":
                 crop_box = (0, 0, width, height - dyn_h)
