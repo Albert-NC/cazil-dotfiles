@@ -927,15 +927,30 @@ install_module_work_env() {
 }
 
 setup_plymouth_cazil() {
-    log "${CYAN}[*] Configurando Plymouth (Tema: cazil-cyber)...${NC}"
-    if [ ! -d "$SHARED_DIR/config/plymouth/themes" ]; then
-        log "${RED}  [!]   No se encontró la carpeta del tema Plymouth en $SHARED_DIR${NC}"
-        return 1
+    log "${CYAN}[*] Configurando Plymouth (Tema dinámico: owl)...${NC}"
+
+    # Descargar repositorio de temas adi1090x a un directorio temporal
+    local ply_tmp="/tmp/plymouth-adi-themes"
+    if [ ! -d "$ply_tmp" ]; then
+        log "${CYAN}  [~]   Descargando tema 'owl' desde GitHub...${NC}"
+        git clone --depth 1 https://github.com/adi1090x/plymouth-themes.git "$ply_tmp" >/dev/null 2>&1
     fi
 
-    local ply_dest="/usr/share/plymouth/themes/cazil-cyber"
-    sudo mkdir -p "$ply_dest"
-    sudo cp -r "$SHARED_DIR/config/plymouth/themes"/. "$ply_dest/"
+    # Buscar el tema owl en los packs y copiarlo
+    local ply_theme_src=""
+    for pack in "$ply_tmp"/pack_*; do
+        if [ -d "$pack/owl" ]; then
+            ply_theme_src="$pack/owl"
+            break
+        fi
+    done
+
+    if [ -n "$ply_theme_src" ]; then
+        sudo cp -r "$ply_theme_src" /usr/share/plymouth/themes/
+    else
+        log "${RED}  [!]   No se encontró el tema 'owl'. Saltando...${NC}"
+        return 1
+    fi
 
 
     # ── MKINITCPIO Setup (Arch Only) ────────────────────────────────────
@@ -965,11 +980,11 @@ setup_plymouth_cazil() {
 
     # ── Activar el tema ─────────────────────────────────────────────
     if command_exists plymouth-set-default-theme; then
-        sudo plymouth-set-default-theme -R cazil-cyber 2>/dev/null || true
+        sudo plymouth-set-default-theme -R owl 2>/dev/null || true
     elif command_exists update-alternatives; then
         sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth \
-            default.plymouth "$ply_dest/cazil-cyber.plymouth" 100 2>/dev/null || true
-        sudo update-alternatives --set default.plymouth "$ply_dest/cazil-cyber.plymouth" 2>/dev/null || true
+            default.plymouth "/usr/share/plymouth/themes/owl/owl.plymouth" 100 2>/dev/null || true
+        sudo update-alternatives --set default.plymouth "/usr/share/plymouth/themes/owl/owl.plymouth" 2>/dev/null || true
     fi
 
     # ── Regenerar initramfs ────────────────────────────────────────
