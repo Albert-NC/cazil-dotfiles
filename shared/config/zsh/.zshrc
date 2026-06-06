@@ -3,6 +3,11 @@
 # Version: 2.1 Ultra-Optimized (Arch/Debian Agnostic)
 # ==============================================================================
 
+# --- PRIVACIDAD GLOBAL (Bloqueo de telemetría de NodeJS / Frameworks) ---
+export DO_NOT_TRACK=1
+export NEXT_TELEMETRY_DISABLED=1
+export GATSBY_TELEMETRY_DISABLED=1
+export NUXT_TELEMETRY_DISABLED=1
 # --- PERFORMANCE: ZPROF (Descomentar para diagnosticar) ---
 # zmodload zsh/zprof
 
