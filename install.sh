@@ -947,11 +947,15 @@ setup_plymouth_cazil() {
 
     if [ -n "$ply_theme_src" ]; then
         sudo cp -r "$ply_theme_src" /usr/share/plymouth/themes/
+        log "${GREEN}  [✓]   Tema 'owl' instalado correctamente.${NC}"
     else
         log "${RED}  [!]   No se encontró el tema 'owl'. Saltando...${NC}"
+        rm -rf "$ply_tmp"
         return 1
     fi
 
+    # Limpiar repositorio de temas para liberar RAM
+    rm -rf "$ply_tmp"
 
     # ── MKINITCPIO Setup (Arch Only) ────────────────────────────────────
     if [ "$DISTRO" = "arch" ] && [ -f /etc/mkinitcpio.conf ]; then
