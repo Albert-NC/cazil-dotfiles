@@ -65,6 +65,22 @@ if [ -x /usr/bin/dircolors ]; then
     eval "$(dircolors -b)"
 fi
 
+# Navegación y Listado Rápido
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias la='ls -la --color=auto'
+alias l='ls -CF --color=auto'
+alias lt='ls -lat --color=auto'
+alias lS='ls -laSh --color=auto'
+
+# Utilidades rápidas
+alias mi-ip='ip -br a'
+alias ip-publica='curl -s ifconfig.me'
+alias memoria='free -h'
+alias disco='df -h'
+alias sensor='sensors | grep -E "Core|Package|Composite"'
+
 preexec() { echo }
 
 # --- 5. ALIASES GENERALES Y MANTENIMIENTO ---
@@ -72,6 +88,29 @@ alias v='nvim'
 alias y='yazi'
 alias shut='sudo shutdown now'
 alias reb='sudo reboot'
+alias cp='cp -v'
+alias mv='mv -v'
+
+# Función Mágica para Extraer TODO
+extraer() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)  tar xjf "$1"   ;;
+            *.tar.gz)   tar xzf "$1"   ;;
+            *.tar.xz)   tar xJf "$1"   ;;
+            *.tar)      tar xf "$1"    ;;
+            *.bz2)      bunzip2 "$1"   ;;
+            *.gz)       gunzip "$1"    ;;
+            *.zip)      unzip "$1"     ;;
+            *.rar)      unrar x "$1"   ;;
+            *.7z)       7z x "$1"      ;;
+            *)          echo "No sé cómo extraer '$1'" ;;
+        esac
+    else
+        echo "'$1' no es un archivo válido"
+    fi
+}
+mkcd() { mkdir -p "$1" && cd "$1" }
 
 # Detectar gestor de paquetes
 if command -v pacman &>/dev/null; then
@@ -117,6 +156,12 @@ alias rgb_off='sudo systemctl stop nitro-rgb.service'
 alias rgb_restart='sudo systemctl restart nitro-rgb.service'
 alias rgb_status='sudo systemctl status nitro-rgb.service'
 alias rgb_log='journalctl -u nitro-rgb.service -f'
+
+# --- VENTILADORES (NitroSense) ---
+alias fan-silen='sudo bash /usr/local/lib/nitro-fan/nitrosense qa'
+alias fan-normal='sudo bash /usr/local/lib/nitro-fan/nitrosense da'
+alias fan-juego='sudo bash /usr/local/lib/nitro-fan/nitrosense pc 60'
+
 alias gpu-status='nvidia-smi --query-gpu=pstate --format=csv,noheader 2>/dev/null && cat /proc/driver/nvidia/gpus/*/power 2>/dev/null'
 alias prime-run='__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia'
 alias gpu-integrada='sudo envycontrol -s integrated'
@@ -278,3 +323,13 @@ command_not_found_handler() {
         return 127
     fi
 }
+
+# --- 14. OPTIMIZACIÓN DE ARRANQUE (LAZY LOAD NVM) ---
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Lazy load Node, npm y npx para que la terminal inicie instantáneamente
+alias nvm='unalias nvm node npm npx yarn 2>/dev/null; . "$NVM_DIR"/nvm.sh; nvm'
+alias node='unalias nvm node npm npx yarn 2>/dev/null; . "$NVM_DIR"/nvm.sh; node'
+alias npm='unalias nvm node npm npx yarn 2>/dev/null; . "$NVM_DIR"/nvm.sh; npm'
+alias npx='unalias nvm node npm npx yarn 2>/dev/null; . "$NVM_DIR"/nvm.sh; npx'
