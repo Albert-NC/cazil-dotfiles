@@ -25,11 +25,10 @@ def remove_watermark(input_path, output_path, method="inpaint"):
             # 2. Crear una máscara (fondo negro, zona a reparar en blanco)
             mask = np.zeros((h, w), dtype=np.uint8)
             
-            # La marca de Gemini suele estar en los últimos 80x80 píxeles, pero en alta 
-            # resolución (1024px o más) la marca sube a 96x96 o más.
-            # Usaremos 160x160 para estar completamente seguros de "borrarla" toda.
-            ancho_marca = 160
-            alto_marca = 160
+            # Calculamos dinámicamente el tamaño de la máscara (12% del ancho, 10% del alto)
+            # para que se adapte perfectamente a imágenes 4K, 1080p o resoluciones bajas
+            ancho_marca = int(w * 0.12)
+            alto_marca = int(h * 0.10)
             cv2.rectangle(mask, (w - ancho_marca, h - alto_marca), (w, h), 255, -1)
             
             # 3. Aplicar inpainting (Telea algorithm suele ser muy bueno para logos)
@@ -43,25 +42,26 @@ def remove_watermark(input_path, output_path, method="inpaint"):
         # Si OpenCV no está disponible o se elige otro método, usar Pillow
         with Image.open(input_path) as img:
             width, height = img.size
+            # Cálculo dinámico para métodos de respaldo
+            dyn_w = int(width * 0.12)
+            dyn_h = int(height * 0.10)
             
             if method == "crop":
-                crop_box = (0, 0, width, height - 60)
+                crop_box = (0, 0, width, height - dyn_h)
                 result_img = img.crop(crop_box)
             
             elif method == "blur":
                 result_img = img.copy()
-                box = (width - 100, height - 100, width, height)
+                box = (width - dyn_w, height - dyn_h, width, height)
                 region = result_img.crop(box)
                 region = region.filter(ImageFilter.GaussianBlur(radius=15))
                 result_img.paste(region, box)
                 
             elif method == "patch":
                 result_img = img.copy()
-                patch_width = 100
-                patch_height = 100
-                source_box = (width - patch_width * 2, height - patch_height, width - patch_width, height)
+                source_box = (width - dyn_w * 2, height - dyn_h, width - dyn_w, height)
                 patch = result_img.crop(source_box)
-                target_box = (width - patch_width, height - patch_height, width, height)
+                target_box = (width - dyn_w, height - dyn_h, width, height)
                 result_img.paste(patch, target_box)
                 
             else:
